@@ -1,0 +1,12 @@
+{
+    "name": "duckdesigns/minimalcms",
+    "description": "A minimal cms written in php",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Jakob Dunning",
+            "email": "info@duckdesigns.de"
+        }
+    ],
+    "require": {}
+}
