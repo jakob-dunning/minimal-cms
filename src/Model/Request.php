@@ -22,7 +22,7 @@ class Request
         );
     }
 
-    public function getRequestUri(): string
+    public function getUri(): string
     {
         return $this->requestUri;
     }

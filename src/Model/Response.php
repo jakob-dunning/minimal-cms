@@ -6,27 +6,22 @@ class Response
 {
     const STATUS_OK = 200;
 
-    private int $statusCode;
-
     private string $content;
 
-    private function __construct(string $content, int $statusCode)
+    private array $headers = [];
+
+    public function __construct(string $content, int $statusCode = self::STATUS_OK)
     {
-        $this->content    = $content;
-        $this->statusCode = $statusCode;
+        $this->content   = $content;
+        $this->headers[] = 'http/1.1 ' . $statusCode;
     }
 
-    public static function createFromString(string $content, $statusCode = self::STATUS_OK): self
+    public function getHeaders(): array
     {
-        return new self($content, $statusCode);
+        return $this->headers;
     }
 
-    public function getStatusCode(): int
-    {
-        return $this->statusCode;
-    }
-
-    public function getContent(): string
+    public function getBody(): string
     {
         return $this->content;
     }

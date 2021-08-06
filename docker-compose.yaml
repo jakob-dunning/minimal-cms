@@ -5,3 +5,14 @@ services:
     volumes:
       - .:/app
     user: ${DOCKER_HOST_USER_ID}:${DOCKER_HOST_USER_ID}
+  apache-php:
+    image: php:7.4-apache
+    ports:
+      - 80:80
+    volumes:
+      - ./:/var/www/html
+  phpunit:
+    image: phpunit/phpunit
+    volumes:
+      - ./:/var/www/html
+

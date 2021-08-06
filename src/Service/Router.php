@@ -4,14 +4,21 @@ namespace App\Service;
 
 use App\Model\Request;
 use App\Model\Response;
+use App\Model\Page;
 
 class Router
 {
-    public function route(Request $request) {
-        $response = Response::createFromString($request->getRequestUri());
+    private Database $database;
 
-        header('HTTP/1.1 ' . $response->getStatusCode());
+    public function __construct(Database $database)
+    {
+        $this->database = $database;
+    }
 
-        echo $response->getContent();
+    public function route(Request $request) : Response
+    {
+        $page = $this->database->findPageByUri($request->getUri());
+
+        return new Response($page->getContent());
     }
 }
