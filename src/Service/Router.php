@@ -4,7 +4,6 @@ namespace App\Service;
 
 use App\Model\Request;
 use App\Model\Response;
-use App\Model\Page;
 
 class Router
 {

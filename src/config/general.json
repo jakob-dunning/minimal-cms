@@ -1,0 +1,3 @@
+{
+  "dsn" : "mysql:host=db;port=3306;dbname=minimalCMS;user=root;password=root"
+}

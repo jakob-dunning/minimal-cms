@@ -1,0 +1,4 @@
+CREATE DATABASE minimalCMS;
+USE minimalCMS;
+CREATE TABLE page (uri VARCHAR(1024) NOT NULL , content TEXT);
+CREATE UNIQUE INDEX uri ON page(uri);
