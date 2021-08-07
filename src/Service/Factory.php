@@ -28,11 +28,15 @@ class Factory
             $config->getByKey('dsn'),
             null,
             null,
-            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]);
+            [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+            ]
+        );
     }
 
     private static function createConfig(): Config
     {
-        return new Config(__DIR__ . '/../config/general.json');
+        return new Config(__DIR__ . '/../../config/general.json');
     }
 }

@@ -13,13 +13,13 @@ services:
       - 80:80
     volumes:
       - .:/var/www/html
-      - ./src/config/000-default.conf:/etc/apache2/sites-enabled/000-default.conf
+      - ./config/000-default.conf:/etc/apache2/sites-enabled/000-default.conf
   db:
     image: mariadb
     container_name: db
     environment:
       MYSQL_ROOT_PASSWORD: root
     volumes:
-      - ./src/config/schema.sql:/schema.sql
+      - ./config/schema.sql:/schema.sql
 
 
