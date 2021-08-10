@@ -5,7 +5,7 @@
 
         {% for item in adminMenu %}
             <li class='nav-item'>
-                <a class='nav-link {% if activeUri == item.target %}active{% endif %}'
+                <a class='nav-link {% if request.uri == item.target %}active{% endif %}'
                    aria-current='page'
                    href='{{ item.target }}'>
                     {{ item.label }}

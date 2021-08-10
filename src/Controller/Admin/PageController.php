@@ -43,7 +43,7 @@ class PageController
         $pages = $this->pageRepository->findAllPages();
 
         return new Response(
-            $this->twig->render('page/list.html.twig', ['pages' => $pages, 'activeUri' => $request->getUri()])
+            $this->twig->render('page/list.html.twig', ['pages' => $pages])
         );
     }
 
@@ -60,7 +60,7 @@ class PageController
         }
 
         return new Response(
-            $this->twig->render('page/single.html.twig', ['title' => 'Add page', 'activeUri' => $request->getUri()])
+            $this->twig->render('page/single.html.twig', ['title' => 'Add page'])
         );
     }
 
@@ -74,7 +74,7 @@ class PageController
             $page = $this->pageRepository->findById($get['id']);
 
             return new Response(
-                $this->twig->render('page/single.html.twig', ['title' => 'Edit page', 'page' => $page, 'activeUri' => $request->getUri()])
+                $this->twig->render('page/single.html.twig', ['title' => 'Edit page', 'page' => $page])
             );
         }
 

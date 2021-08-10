@@ -30,14 +30,14 @@ class UserController
         $this->authentication->authenticateUser($request);
 
         if ($request->getMethod() !== Request::METHOD_POST) {
-            return new Response($this->twig->render('user/single.html.twig', ['activeUri' => $request->getUri()]));
+            return new Response($this->twig->render('user/single.html.twig'));
         }
 
         $post = $request->getPost();
 
         if ($post['password'] !== $post['repeat-password']) {
             return new Response($this->twig->render('user/single.html.twig',
-                                                    ['activeUri' => $request->getUri(), 'errors' => ['Passwords do not match']]));
+                                                    ['errors' => ['Passwords do not match']]));
         }
 
         $password = password_hash($post['password'], PASSWORD_DEFAULT);
@@ -53,7 +53,7 @@ class UserController
         $users = $this->userRepository->findAll();
 
         return new Response(
-            $this->twig->render('user/list.html.twig', ['users' => $users, 'activeUri' => $request->getUri()])
+            $this->twig->render('user/list.html.twig', ['users' => $users])
         );
     }
 
@@ -66,7 +66,7 @@ class UserController
 
         if ($request->getMethod() !== Request::METHOD_POST) {
             return new Response(
-                $this->twig->render('user/single.html.twig', ['title' => 'Edit user', 'user' => $user, 'activeUri' => $request->getUri()])
+                $this->twig->render('user/single.html.twig', ['title' => 'Edit user', 'user' => $user])
             );
         }
 
@@ -74,7 +74,7 @@ class UserController
 
         if ($post['password'] !== $post['repeat-password']) {
             return new Response(
-                $this->twig->render('user/single.html.twig',['title' => 'Edit user', 'user' => $user, 'activeUri' => $request->getUri(), 'errors' => ['Passwords do not match']])
+                $this->twig->render('user/single.html.twig',['title' => 'Edit user', 'user' => $user, 'errors' => ['Passwords do not match']])
             );
         }
 

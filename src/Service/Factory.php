@@ -6,6 +6,7 @@ use App\Controller\Admin\DashboardController;
 use App\Controller\Admin\PageController;
 use App\Controller\Admin\UserController;
 use App\Controller\PublicController;
+use App\Model\Request;
 use App\Repository\PageRepository;
 use App\Repository\UserRepository;
 use App\Service\Database\MariaDb;
@@ -15,58 +16,62 @@ use Twig\Loader\FilesystemLoader;
 
 class Factory
 {
-    private function __construct()
+    private Request $request;
+
+    public function __construct(Request $request)
     {
+        $this->request = $request;
     }
 
-    public static function createRouter(): Router
+    public function createRouter(): Router
     {
         return new Router(
             new DashboardController(
-                self::createUserRepository(),
-                self::createPageRepository(),
-                self::createConfig(),
-                self::createTwig(),
-                self::createAuthentication()
+                $this->createUserRepository(),
+                $this->createPageRepository(),
+                $this->createConfig(),
+                $this->createTwig(),
+                $this->createAuthentication()
             ),
-            new UserController(self::createUserRepository(), self::createTwig(), self::createAuthentication()),
-            new PageController(self::createPageRepository(), self::createUserRepository(), self::createTwig(), self::createAuthentication()),
-            new PublicController(self::createPageRepository(), self::createTwig())
+            new UserController($this->createUserRepository(), $this->createTwig(), $this->createAuthentication()),
+            new PageController($this->createPageRepository(), $this->createUserRepository(), $this->createTwig(), $this->createAuthentication()),
+            new PublicController($this->createPageRepository(), $this->createTwig())
         );
     }
 
-    public static function createTwig(): Environment
+    public function createTwig(): Environment
     {
         $twig = new Environment(new FilesystemLoader(__DIR__ . '/../View/'));
         $twig->addGlobal('adminMenu', DashboardController::ADMIN_MENU);
         $twig->addGlobal('menu', PublicController::MENU);
+        $twig->addGlobal('request', $this->request);
 
         return $twig;
     }
 
-    private static function createAuthentication(): Authentication
+    private function createAuthentication(): Authentication
     {
-        return new Authentication(self::createConfig(), self::createUserRepository());
+        return new Authentication($this->createConfig(), $this->createUserRepository());
     }
 
-    private static function createDatabase(): MariaDb
+    private function createDatabase(): MariaDb
     {
-        return new MariaDb(self::createPDO());
+        return new MariaDb($this->createPDO());
     }
 
-    private static function createUserRepository(): UserRepository
+    private function createUserRepository(): UserRepository
     {
-        return new UserRepository(self::createDatabase());
+        return new UserRepository($this->createDatabase());
     }
 
-    private static function createPageRepository(): PageRepository
+    private function createPageRepository(): PageRepository
     {
-        return new PageRepository(self::createDatabase());
+        return new PageRepository($this->createDatabase());
     }
 
-    private static function createPDO(): PDO
+    private function createPDO(): PDO
     {
-        $config = self::createConfig();
+        $config = $this->createConfig();
 
         return new PDO(
             $config->getByKey('dsn'),

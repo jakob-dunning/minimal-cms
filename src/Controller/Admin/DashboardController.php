@@ -94,7 +94,7 @@ class DashboardController
         $pages = $this->pageRepository->findAllPages();
 
         return new Response(
-            $this->twig->render('dashboard.html.twig', ['users' => $users, 'pages' => $pages, 'activeUri' => $request->getUri()]),
+            $this->twig->render('dashboard.html.twig', ['users' => $users, 'pages' => $pages]),
         );
     }
 }

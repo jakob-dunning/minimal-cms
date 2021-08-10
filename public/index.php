@@ -8,9 +8,11 @@ require __DIR__ . '/../vendor/autoload.php';
 
 session_start();
 
+$request  = Request::createFromGlobals();
+$factory = new Factory($request);
+
 try {
-    $request  = Request::createFromGlobals();
-    $router   = Factory::createRouter();
+    $router   = $factory->createRouter();
     $response = $router->route($request);
 
     foreach ($response->getHeaders() as $header) {
@@ -19,7 +21,7 @@ try {
 
     echo $response->getBody();
 } catch (\Throwable $t) {
-    $twig = Factory::createTwig();
+    $twig = $factory->createTwig();
     $response = new Response($twig->render('error.html.twig', ['errors' => [$t->getMessage()]]));
 
     echo $response->getBody();
