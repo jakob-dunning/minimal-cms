@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Model;
+namespace App\Model\Response;
 
-class Response
+class Response implements ResponseInterface
 {
-    const STATUS_OK = 200;
+    public const STATUS_OK = 200;
+
+    public const STATUS_UNAUTHORIZED = 401;
 
     private string $content;
 

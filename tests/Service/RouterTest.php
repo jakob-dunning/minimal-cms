@@ -2,10 +2,12 @@
 
 namespace Test;
 
-use App\Model\Page;
+use App\Controller\Admin\DashboardController;
+use App\Controller\Admin\PageController;
+use App\Controller\Admin\UserController;
+use App\Controller\PublicController;
 use App\Model\Request;
-use App\Model\Response;
-use App\Service\Database;
+use App\Model\Response\Response;
 use App\Service\Router;
 use PHPUnit\Framework\TestCase;
 
@@ -15,27 +17,35 @@ class RouterTest extends TestCase
     {
         $requestUri = '/test/test';
         $content    = 'Test content';
+        $headers    = ['http/1.1 ' . Response::STATUS_OK];
 
-        $pageMock = $this->createMock(Page::class);
-        $pageMock->expects($this->once())
-                 ->method('getContent')
-                 ->willReturn($content);
-
-        $databaseMock = $this->createMock(Database::class);
-        $databaseMock->expects($this->once())
-                     ->method('findPageByUri')
-                     ->with($requestUri)
-                     ->willReturn($pageMock);
+        $responseMock = $this->createMock(Response::class);
+        $responseMock->expects($this->once())
+                     ->method('getHeaders')
+                     ->willReturn($headers);
+        $responseMock->expects($this->once())
+                     ->method('getBody')
+                     ->willReturn($content);
 
         $requestMock = $this->createMock(Request::class);
         $requestMock->expects($this->once())
                     ->method('getUri')
                     ->willReturn($requestUri);
 
-        $router   = new Router($databaseMock);
+        $userControllerMock      = $this->createMock(UserController::class);
+        $dashboardControllerMock = $this->createMock(DashboardController::class);
+        $pageControllerMock      = $this->createMock(PageController::class);
+        $defaultControllerMock   = $this->createMock(PublicController::class);
+
+        $defaultControllerMock->expects($this->once())
+                              ->method('page')
+                              ->with($requestMock)
+                              ->willReturn($responseMock);
+
+        $router   = new Router($dashboardControllerMock, $userControllerMock, $pageControllerMock, $defaultControllerMock);
         $response = $router->route($requestMock);
 
-        $this->assertSame(['http/1.1 ' . Response::STATUS_OK], $response->getHeaders());
+        $this->assertSame($headers, $response->getHeaders());
         $this->assertSame($content, $response->getBody());
     }
 }

@@ -8,10 +8,16 @@ class Page
 
     private string $content;
 
-    public function __construct(string $uri = 'g', string $content = 'g')
+    private string $title;
+
+    private int    $id;
+
+    public function __construct(int $id, string $uri, string $title, string $content)
     {
         $this->uri     = $uri;
         $this->content = $content;
+        $this->title   = $title;
+        $this->id      = $id;
     }
 
     public function getUri(): string
@@ -22,5 +28,15 @@ class Page
     public function getContent(): string
     {
         return $this->content;
+    }
+
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function getId() : int
+    {
+        return $this->id;
     }
 }
