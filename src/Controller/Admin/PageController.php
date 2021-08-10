@@ -9,6 +9,7 @@ use App\Model\Response\Response;
 use App\Model\Response\ResponseInterface;
 use App\Repository\PageRepository;
 use App\Repository\UserRepository;
+use App\Service\Authentication;
 use App\View\AddPage;
 use App\View\ListPage;
 use Twig\Environment;
@@ -21,20 +22,23 @@ class PageController
 
     private Environment $twig;
 
-    public function __construct(PageRepository $pageRepository, UserRepository $userRepository, Environment $twig)
-    {
+    private Authentication $authentication;
+
+    public function __construct(
+        PageRepository $pageRepository,
+        UserRepository $userRepository,
+        Environment $twig,
+        Authentication $authentication
+    ) {
         $this->pageRepository = $pageRepository;
         $this->userRepository = $userRepository;
         $this->twig           = $twig;
+        $this->authentication = $authentication;
     }
 
     public function list(Request $request)
     {
-        $user = $this->userRepository->findBySessionId($request->getSessionId());
-
-        if ($user->isAuthenticated() === false) {
-            return new RedirectResponse('/admin/login');
-        }
+        $this->authentication->authenticateUser($request);
 
         $pages = $this->pageRepository->findAllPages();
 
@@ -45,11 +49,7 @@ class PageController
 
     public function add(Request $request): ResponseInterface
     {
-        $user = $this->userRepository->findBySessionId($request->getSessionId());
-
-        if ($user->isAuthenticated() === false) {
-            return new RedirectResponse('/admin/login');
-        }
+        $this->authentication->authenticateUser($request);
 
         if ($request->getMethod() === Request::METHOD_POST) {
             $post = $request->getPost();
@@ -66,11 +66,7 @@ class PageController
 
     public function edit(Request $request): ResponseInterface
     {
-        $user = $this->userRepository->findBySessionId($request->getSessionId());
-
-        if ($user->isAuthenticated() === false) {
-            return new RedirectResponse('/admin/login');
-        }
+        $this->authentication->authenticateUser($request);
 
         $get = $request->getGet();
 
@@ -83,7 +79,6 @@ class PageController
         }
 
         $post = $request->getPost();
-
         $this->pageRepository->persist(new Page($get['id'], $post['uri'], $post['title'], $post['content']));
 
         return new RedirectResponse('/admin/page');
@@ -91,8 +86,9 @@ class PageController
 
     public function delete(Request $request): ResponseInterface
     {
-        $get = $request->getGet();
+        $this->authentication->authenticateUser($request);
 
+        $get = $request->getGet();
         $this->pageRepository->deleteById($get['id']);
 
         return new RedirectResponse('/admin/page');

@@ -22,20 +22,31 @@ class Factory
     public static function createRouter(): Router
     {
         return new Router(
-            new DashboardController(self::createUserRepository(), self::createPageRepository(), self::createConfig(), self::createTwig()),
-            new UserController(self::createUserRepository(), self::createTwig()),
-            new PageController(self::createPageRepository(), self::createUserRepository(), self::createTwig()),
+            new DashboardController(
+                self::createUserRepository(),
+                self::createPageRepository(),
+                self::createConfig(),
+                self::createTwig(),
+                self::createAuthentication()
+            ),
+            new UserController(self::createUserRepository(), self::createTwig(), self::createAuthentication()),
+            new PageController(self::createPageRepository(), self::createUserRepository(), self::createTwig(), self::createAuthentication()),
             new PublicController(self::createPageRepository(), self::createTwig())
         );
     }
 
-    public static function createTwig() : Environment
+    public static function createTwig(): Environment
     {
         $twig = new Environment(new FilesystemLoader(__DIR__ . '/../View/'));
         $twig->addGlobal('adminMenu', DashboardController::ADMIN_MENU);
         $twig->addGlobal('menu', PublicController::MENU);
 
         return $twig;
+    }
+
+    private static function createAuthentication(): Authentication
+    {
+        return new Authentication(self::createConfig(), self::createUserRepository());
     }
 
     private static function createDatabase(): MariaDb

@@ -7,9 +7,9 @@ use App\Model\Request;
 use App\Model\Response\RedirectResponse;
 use App\Model\Response\Response;
 use App\Model\Response\ResponseInterface;
-use App\Model\User\UserInterface;
 use App\Repository\PageRepository;
 use App\Repository\UserRepository;
+use App\Service\Authentication;
 use App\Service\Config;
 use Twig\Environment;
 
@@ -29,46 +29,47 @@ class DashboardController
 
     private Environment $twig;
 
-    public function __construct(UserRepository $userRepository, PageRepository $pageRepository, Config $config, Environment $twig)
-    {
+    private Authentication $authentication;
+
+    public function __construct(
+        UserRepository $userRepository,
+        PageRepository $pageRepository,
+        Config $config,
+        Environment $twig,
+        Authentication $authentication
+    ) {
         $this->config         = $config;
         $this->userRepository = $userRepository;
         $this->pageRepository = $pageRepository;
         $this->twig           = $twig;
+        $this->authentication = $authentication;
     }
 
     public function login(Request $request): ResponseInterface
     {
-        $user = $this->userRepository->findBySessionId($request->getSessionId());
+        if ($request->getMethod() === Request::METHOD_GET) {
+            try {
+                $this->authentication->authenticateUser($request);
+            } catch (AnonymousUserException $e) {
+                return new Response($this->twig->render('login.html.twig', ['error' => [$e->getMessage()]]));
+            }
 
-        if ($user->isAuthenticated()) {
             return new RedirectResponse('/admin/dashboard');
         }
 
         if ($request->getMethod() !== Request::METHOD_POST) {
-            return new Response(
-                $this->twig->render('login.html.twig', ['activeUri' => $request->getUri()])
-            );
+            throw new AnonymousUserException();
         }
 
         $user = $this->userRepository->findByUsername($request->getPost()['user'] ?? '');
 
-        try {
-            if (password_verify($request->getPost()['password'], $user->getPassword()) === false) {
-                return new Response(
-                    $this->twig->render('login.html.twig', ['activeUri' => $request->getUri(), 'errors' => ['Unknown combination of user and password']]),
-                    Response::STATUS_UNAUTHORIZED
-                );
-            }
-        } catch (AnonymousUserException $e) {
-            return new Response(
-                $this->twig->render('login.html.twig', ['activeUri' => $request->getUri(), 'errors' => [$e->getMessage()]]),
-                Response::STATUS_UNAUTHORIZED
-            );
+        if (password_verify($request->getPost()['password'], $user->getPassword()) === false) {
+            throw new AnonymousUserException();
         }
 
         $user->setSessionId($request->getSessionId());
-        $this->renewSession($user);
+        $this->authentication->renewSession($user);
+
         $this->userRepository->persist($user);
 
         return new RedirectResponse('/admin/dashboard');
@@ -76,11 +77,7 @@ class DashboardController
 
     public function logout(Request $request)
     {
-        $user = $this->userRepository->findBySessionId($request->getSessionId());
-
-        if ($user->isAuthenticated() === false) {
-            return new RedirectResponse('/admin/login');
-        }
+        $user = $this->authentication->authenticateUser($request);
 
         $user->setSessionIdExpiresAt(null);
         $user->setSessionId(null);
@@ -91,14 +88,7 @@ class DashboardController
 
     public function dashboard(Request $request): ResponseInterface
     {
-        $user = $this->userRepository->findBySessionId($request->getSessionId());
-
-        if ($user->isAuthenticated() === false) {
-            return new RedirectResponse('/admin/login');
-        }
-
-        $this->renewSession($user);
-        $this->userRepository->persist($user);
+        $this->authentication->authenticateUser($request);
 
         $users = $this->userRepository->findAll();
         $pages = $this->pageRepository->findAllPages();
@@ -106,11 +96,5 @@ class DashboardController
         return new Response(
             $this->twig->render('dashboard.html.twig', ['users' => $users, 'pages' => $pages, 'activeUri' => $request->getUri()]),
         );
-    }
-
-    private function renewSession(UserInterface $user)
-    {
-        $sessionExpirationTime = $this->config->getByKey('sessionExpirationTime');
-        $user->setSessionIdExpiresAt((new \DateTime())->modify('+' . $sessionExpirationTime . ' minutes'));
     }
 }

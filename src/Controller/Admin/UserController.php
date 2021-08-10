@@ -6,8 +6,8 @@ use App\Model\Request;
 use App\Model\Response\RedirectResponse;
 use App\Model\Response\Response;
 use App\Model\Response\ResponseInterface;
-use App\Model\User\AuthenticatedUser;
 use App\Repository\UserRepository;
+use App\Service\Authentication;
 use Twig\Environment;
 
 class UserController
@@ -16,19 +16,18 @@ class UserController
 
     private Environment $twig;
 
-    public function __construct(UserRepository $userRepository, Environment $twig)
+    private Authentication $authentication;
+
+    public function __construct(UserRepository $userRepository, Environment $twig, Authentication $authentication)
     {
         $this->userRepository = $userRepository;
         $this->twig           = $twig;
+        $this->authentication = $authentication;
     }
 
     public function add(Request $request): ResponseInterface
     {
-        $user = $this->userRepository->findBySessionId($request->getSessionId());
-
-        if ($user->isAuthenticated() === false) {
-            return new RedirectResponse('/admin/login');
-        }
+        $this->authentication->authenticateUser($request);
 
         if ($request->getMethod() !== Request::METHOD_POST) {
             return new Response($this->twig->render('user/single.html.twig', ['activeUri' => $request->getUri()]));
@@ -42,7 +41,6 @@ class UserController
         }
 
         $password = password_hash($post['password'], PASSWORD_DEFAULT);
-
         $this->userRepository->createUser($post['user'], $password);
 
         return new RedirectResponse('/admin/user');
@@ -50,11 +48,7 @@ class UserController
 
     public function list(Request $request): ResponseInterface
     {
-        $user = $this->userRepository->findBySessionId($request->getSessionId());
-
-        if ($user->isAuthenticated() === false) {
-            return new RedirectResponse('/admin/login');
-        }
+        $this->authentication->authenticateUser($request);
 
         $users = $this->userRepository->findAll();
 
@@ -65,11 +59,7 @@ class UserController
 
     public function edit(Request $request): ResponseInterface
     {
-        $user = $this->userRepository->findBySessionId($request->getSessionId());
-
-        if ($user->isAuthenticated() === false) {
-            return new RedirectResponse('/admin/login');
-        }
+        $this->authentication->authenticateUser($request);
 
         $get  = $request->getGet();
         $user = $this->userRepository->findById($get['id']);
@@ -99,8 +89,9 @@ class UserController
 
     public function delete(Request $request): ResponseInterface
     {
-        $get = $request->getGet();
+        $this->authentication->authenticateUser($request);
 
+        $get = $request->getGet();
         $this->userRepository->deleteById($get['id']);
 
         return new RedirectResponse('/admin/user');
