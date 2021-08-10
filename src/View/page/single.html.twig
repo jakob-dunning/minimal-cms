@@ -1,0 +1,25 @@
+{% extends 'adminLayout.html.twig' %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block body %}
+    <form method="post" action="{{ action }}">
+        <div class="mb-3">
+            <label for="uri" class="form-label">Uri</label>
+            <input type="text" class="form-control" name="uri" id="uri" value="{{ page.uri }}" pattern="^\/[.-_a-zA-Z0-9\/]*" required>
+        </div>
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" class="form-control" name="title" id="title" value="{{ page.title }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="content" class="form-label">Content</label>
+            <textarea class="form-control" name="content" id="content">{{ page.content }}</textarea>
+        </div>
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+{% endblock %}

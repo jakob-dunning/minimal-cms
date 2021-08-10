@@ -1,0 +1,33 @@
+{% extends 'adminLayout.html.twig' %}
+
+{% block title %}
+    Users
+{% endblock %}
+
+{% block body %}
+    <table class="table">
+    <thead>
+    <tr>
+        <th scope="col">User</th>
+        <th scope="col">Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in users %}
+        <tr>
+            <td>{{ user.username }}</td>
+            <td>
+                <a href="/admin/user/edit?id={{ user.id }}" class="btn btn-primary">Edit</a>
+                <a href="/admin/user/delete?id={{ user.id }}" class="btn btn-danger">Delete</a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+
+    <div class='row'>
+        <div class='col-2'>
+            <a href='/admin/user/add' class='btn btn-primary'>Add user</a>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'adminLayout.html.twig' %}
+
+{% block title %}
+    Pages
+{% endblock %}
+
+{% block body %}
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Uri</th>
+            <th scope="col">Title</th>
+            <th scope="col">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for page in pages %}
+            <tr>
+                <td><a href="{{ page.uri }}">{{ page.uri }}</a></td>
+                <td>{{ page.title }}</td>
+                <td>
+                    <a href="/admin/page/edit?id={{ page.id }}" class="btn btn-primary">Edit</a>
+                    <a href="/admin/page/delete?id={{ page.id }}" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+    <div class='row'>
+        <div class='col-2'>
+            <a href='/admin/page/add' class='btn btn-primary'>Add page</a>
+        </div>
+    </div>
+{% endblock %}

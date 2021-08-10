@@ -1,0 +1,18 @@
+{% extends 'layout.html.twig' %}
+
+{% block menu %}
+    <ul class='nav nav-tabs mt-5 mb-4'>
+
+        {% for item in adminMenu %}
+            <li class='nav-item'>
+                <a class='nav-link {% if activeUri == item.target %}active{% endif %}'
+                   aria-current='page'
+                   href='{{ item.target }}'>
+                    {{ item.label }}
+                </a>
+            </li>
+        {% endfor %}
+
+        <li class='nav-item'><a class='nav-link' aria-current='page' href='/admin/logout'>Logout</a></li>
+    </ul>
+{% endblock %}

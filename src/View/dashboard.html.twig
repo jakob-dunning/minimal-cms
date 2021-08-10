@@ -1,0 +1,18 @@
+{% extends 'adminLayout.html.twig' %}
+
+{% block title %}
+    Dashboard
+{% endblock %}
+
+{% block body %}
+    <table class="table">
+        <tr>
+            <td>Users</td>
+            <td>{{ users|length }}</td>
+        </tr>
+        <tr>
+            <td>Pages</td>
+            <td>{{ pages|length }}</td>
+        </tr>
+    </table>
+{% endblock %}
