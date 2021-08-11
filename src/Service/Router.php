@@ -6,10 +6,11 @@ use App\Controller\Admin\DashboardController;
 use App\Controller\Admin\PageController;
 use App\Controller\Admin\UserController;
 use App\Controller\PublicController;
-use App\Exception\AnonymousUserException;
+use App\Exception\NotAuthenticatedException;
 use App\Model\Request;
 use App\Model\Response\RedirectResponse;
 use App\Model\Response\ResponseInterface;
+use App\ValueObject\FlashMessage;
 
 class Router
 {
@@ -35,16 +36,20 @@ class Router
 
     private UserController $userController;
 
+    private SessionService $sessionService;
+
     public function __construct(
         DashboardController $dashboardController,
         UserController $userController,
         PageController $pageController,
-        PublicController $defaultController
+        PublicController $defaultController,
+        SessionService $sessionService
     ) {
         $this->defaultController   = $defaultController;
         $this->dashboardController = $dashboardController;
         $this->userController      = $userController;
         $this->pageController      = $pageController;
+        $this->sessionService      = $sessionService;
     }
 
     public function route(Request $request): ResponseInterface
@@ -59,7 +64,11 @@ class Router
 
                 return $this->$controller->$method($request);
             }
-        } catch (AnonymousUserException $e) {
+        } catch (NotAuthenticatedException $e) {
+            $this->sessionService->setFlash(
+                new FlashMessage($e->getMessage(), FlashMessage::SEVERITY_LEVEL_ERROR)
+            );
+
             return new RedirectResponse('/admin/login');
         }
 

@@ -2,15 +2,16 @@
 
 namespace App\Controller\Admin;
 
-use App\Exception\AnonymousUserException;
+use App\Exception\NotAuthenticatedException;
 use App\Model\Request;
 use App\Model\Response\RedirectResponse;
 use App\Model\Response\Response;
 use App\Model\Response\ResponseInterface;
 use App\Repository\PageRepository;
 use App\Repository\UserRepository;
-use App\Service\Authentication;
+use App\Service\AuthenticationService;
 use App\Service\Config;
+use App\Service\SessionService;
 use Twig\Environment;
 
 class DashboardController
@@ -29,20 +30,24 @@ class DashboardController
 
     private Environment $twig;
 
-    private Authentication $authentication;
+    private AuthenticationService $authentication;
+
+    private SessionService $sessionService;
 
     public function __construct(
         UserRepository $userRepository,
         PageRepository $pageRepository,
         Config $config,
         Environment $twig,
-        Authentication $authentication
+        AuthenticationService $authentication,
+        SessionService $sessionService
     ) {
         $this->config         = $config;
         $this->userRepository = $userRepository;
         $this->pageRepository = $pageRepository;
         $this->twig           = $twig;
         $this->authentication = $authentication;
+        $this->sessionService = $sessionService;
     }
 
     public function login(Request $request): ResponseInterface
@@ -50,21 +55,25 @@ class DashboardController
         if ($request->getMethod() === Request::METHOD_GET) {
             try {
                 $this->authentication->authenticateUser($request);
-            } catch (AnonymousUserException $e) {
-                return new Response($this->twig->render('login.html.twig', ['error' => [$e->getMessage()]]));
+            } catch (NotAuthenticatedException $e) {
+                return new Response($this->twig->render('login.html.twig'));
             }
 
             return new RedirectResponse('/admin/dashboard');
         }
 
         if ($request->getMethod() !== Request::METHOD_POST) {
-            throw new AnonymousUserException();
+            throw new NotAuthenticatedException();
         }
 
         $user = $this->userRepository->findByUsername($request->getPost()['user'] ?? '');
 
+        if($user === null) {
+            throw new NotAuthenticatedException();
+        }
+
         if (password_verify($request->getPost()['password'], $user->getPassword()) === false) {
-            throw new AnonymousUserException();
+            throw new NotAuthenticatedException();
         }
 
         $user->setSessionId($request->getSessionId());
@@ -81,6 +90,7 @@ class DashboardController
 
         $user->setSessionIdExpiresAt(null);
         $user->setSessionId(null);
+
         $this->userRepository->persist($user);
 
         return new RedirectResponse('/admin/login');
@@ -91,7 +101,7 @@ class DashboardController
         $this->authentication->authenticateUser($request);
 
         $users = $this->userRepository->findAll();
-        $pages = $this->pageRepository->findAllPages();
+        $pages = $this->pageRepository->findAll();
 
         return new Response(
             $this->twig->render('dashboard.html.twig', ['users' => $users, 'pages' => $pages]),

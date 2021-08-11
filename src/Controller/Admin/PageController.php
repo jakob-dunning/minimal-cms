@@ -9,7 +9,9 @@ use App\Model\Response\Response;
 use App\Model\Response\ResponseInterface;
 use App\Repository\PageRepository;
 use App\Repository\UserRepository;
-use App\Service\Authentication;
+use App\Service\AuthenticationService;
+use App\Service\SessionService;
+use App\ValueObject\FlashMessage;
 use App\View\AddPage;
 use App\View\ListPage;
 use Twig\Environment;
@@ -22,25 +24,31 @@ class PageController
 
     private Environment $twig;
 
-    private Authentication $authentication;
+    private AuthenticationService $authentication;
+    /**
+     * @var SessionService
+     */
+    private SessionService $sessionService;
 
     public function __construct(
         PageRepository $pageRepository,
         UserRepository $userRepository,
         Environment $twig,
-        Authentication $authentication
+        AuthenticationService $authentication,
+        SessionService $sessionService
     ) {
         $this->pageRepository = $pageRepository;
         $this->userRepository = $userRepository;
         $this->twig           = $twig;
         $this->authentication = $authentication;
+        $this->sessionService = $sessionService;
     }
 
     public function list(Request $request)
     {
         $this->authentication->authenticateUser($request);
 
-        $pages = $this->pageRepository->findAllPages();
+        $pages = $this->pageRepository->findAll();
 
         return new Response(
             $this->twig->render('page/list.html.twig', ['pages' => $pages])
@@ -54,7 +62,10 @@ class PageController
         if ($request->getMethod() === Request::METHOD_POST) {
             $post = $request->getPost();
 
-            $this->pageRepository->createPage($post['uri'], $post['title'], $post['content']);
+            $this->pageRepository->create($post['uri'], $post['title'], $post['content']);
+            $this->sessionService->setFlash(
+                new FlashMessage('Page added successfully', FlashMessage::SEVERITY_LEVEL_SUCCESS)
+            );
 
             return new RedirectResponse('/admin/page');
         }

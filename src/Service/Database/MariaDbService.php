@@ -4,7 +4,7 @@ namespace App\Service\Database;
 
 use PDO;
 
-class MariaDb implements RelationalDatabaseInterface
+class MariaDbService implements RelationalDatabaseInterface
 {
     private PDO $pdo;
 

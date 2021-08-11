@@ -7,7 +7,9 @@ use App\Model\Response\RedirectResponse;
 use App\Model\Response\Response;
 use App\Model\Response\ResponseInterface;
 use App\Repository\UserRepository;
-use App\Service\Authentication;
+use App\Service\AuthenticationService;
+use App\Service\SessionService;
+use App\ValueObject\FlashMessage;
 use Twig\Environment;
 
 class UserController
@@ -16,13 +18,20 @@ class UserController
 
     private Environment $twig;
 
-    private Authentication $authentication;
+    private AuthenticationService $authentication;
 
-    public function __construct(UserRepository $userRepository, Environment $twig, Authentication $authentication)
-    {
+    private SessionService $sessionService;
+
+    public function __construct(
+        UserRepository $userRepository,
+        Environment $twig,
+        AuthenticationService $authentication,
+        SessionService $sessionService
+    ) {
         $this->userRepository = $userRepository;
         $this->twig           = $twig;
         $this->authentication = $authentication;
+        $this->sessionService = $sessionService;
     }
 
     public function add(Request $request): ResponseInterface
@@ -41,7 +50,7 @@ class UserController
         }
 
         $password = password_hash($post['password'], PASSWORD_DEFAULT);
-        $this->userRepository->createUser($post['user'], $password);
+        $this->userRepository->create($post['user'], $password);
 
         return new RedirectResponse('/admin/user');
     }
@@ -72,17 +81,31 @@ class UserController
 
         $post = $request->getPost();
 
-        if ($post['password'] !== $post['repeat-password']) {
+        if ($post['password'] === '') {
+            $this->sessionService->setFlash(
+                new FlashMessage('Password cannot be empty', FlashMessage::SEVERITY_LEVEL_ERROR)
+            );
+
             return new Response(
-                $this->twig->render('user/single.html.twig',['title' => 'Edit user', 'user' => $user, 'errors' => ['Passwords do not match']])
+                $this->twig->render('user/single.html.twig', ['title' => 'Edit user', 'user' => $user])
             );
         }
 
-        if($post['password'] !== '') {
-            $user->setPassword(password_hash($post['password'], PASSWORD_DEFAULT));
+        if ($post['password'] !== $post['repeat-password']) {
+            $this->sessionService->setFlash(
+                new FlashMessage('Passwords do not match', FlashMessage::SEVERITY_LEVEL_ERROR)
+            );
+
+            return new Response(
+                $this->twig->render('user/single.html.twig', ['title' => 'Edit user', 'user' => $user])
+            );
         }
 
+        $user->setPassword(password_hash($post['password'], PASSWORD_DEFAULT));
         $this->userRepository->persist($user);
+        $this->sessionService->setFlash(
+            new FlashMessage('New password saved successfully', FlashMessage::SEVERITY_LEVEL_SUCCESS)
+        );
 
         return new RedirectResponse('/admin/user');
     }

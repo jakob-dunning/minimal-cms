@@ -14,7 +14,7 @@ class PageRepository
         $this->database = $database;
     }
 
-    public function findPageByUri(string $uri): Page
+    public function findByUri(string $uri): Page
     {
         $data = $this->database->select('*', 'page', ['uri' => $uri]);
 
@@ -27,12 +27,12 @@ class PageRepository
         return new Page($pageData['id'], $pageData['uri'], $pageData['title'], $pageData['content']);
     }
 
-    public function createPage(string $uri, string $title, string $content): void
+    public function create(string $uri, string $title, string $content): void
     {
         $this->database->insert('page', ['uri' => $uri, 'title' => $title, 'content' => $content]);
     }
 
-    public function findAllPages(): array
+    public function findAll(): array
     {
         $data  = $this->database->select('*', 'page', []);
         $pages = [];

@@ -9,7 +9,7 @@ use App\Controller\PublicController;
 use App\Model\Request;
 use App\Repository\PageRepository;
 use App\Repository\UserRepository;
-use App\Service\Database\MariaDb;
+use App\Service\Database\MariaDbService;
 use PDO;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -31,11 +31,27 @@ class Factory
                 $this->createPageRepository(),
                 $this->createConfig(),
                 $this->createTwig(),
-                $this->createAuthentication()
+                $this->createAuthentication(),
+                $this->createSessionService()
             ),
-            new UserController($this->createUserRepository(), $this->createTwig(), $this->createAuthentication()),
-            new PageController($this->createPageRepository(), $this->createUserRepository(), $this->createTwig(), $this->createAuthentication()),
-            new PublicController($this->createPageRepository(), $this->createTwig())
+            new UserController(
+                $this->createUserRepository(),
+                $this->createTwig(),
+                $this->createAuthentication(),
+                $this->createSessionService()
+            ),
+            new PageController(
+                $this->createPageRepository(),
+                $this->createUserRepository(),
+                $this->createTwig(),
+                $this->createAuthentication(),
+                $this->createSessionService()
+            ),
+            new PublicController(
+                $this->createPageRepository(),
+                $this->createTwig()
+            ),
+            $this->createSessionService()
         );
     }
 
@@ -45,18 +61,19 @@ class Factory
         $twig->addGlobal('adminMenu', DashboardController::ADMIN_MENU);
         $twig->addGlobal('menu', PublicController::MENU);
         $twig->addGlobal('request', $this->request);
+        $twig->addGlobal('sessionService', $this->createSessionService());
 
         return $twig;
     }
 
-    private function createAuthentication(): Authentication
+    private function createAuthentication(): AuthenticationService
     {
-        return new Authentication($this->createConfig(), $this->createUserRepository());
+        return new AuthenticationService($this->createConfig(), $this->createUserRepository());
     }
 
-    private function createDatabase(): MariaDb
+    private function createDatabase(): MariaDbService
     {
-        return new MariaDb($this->createPDO());
+        return new MariaDbService($this->createPDO());
     }
 
     private function createUserRepository(): UserRepository
@@ -87,5 +104,10 @@ class Factory
     private static function createConfig(): Config
     {
         return new Config(__DIR__ . '/../../config/general.json');
+    }
+
+    function createSessionService(): SessionService
+    {
+        return new SessionService();
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Model\User;
 
-class AuthenticatedUser implements UserInterface
+class User implements UserInterface
 {
     private string    $username;
 

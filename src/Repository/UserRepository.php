@@ -2,8 +2,7 @@
 
 namespace App\Repository;
 
-use App\Model\User\AnonymousUser;
-use App\Model\User\AuthenticatedUser;
+use App\Model\User\User;
 use App\Model\User\UserInterface;
 use App\Service\Database\RelationalDatabaseInterface;
 
@@ -16,32 +15,32 @@ class UserRepository
         $this->database = $database;
     }
 
-    public function findBySessionId(string $sessionId): UserInterface
+    public function findBySessionId(string $sessionId): ?UserInterface
     {
         $data = $this->database->select('*', 'user', ['session_id' => $sessionId]);
 
         if (count($data) === 0) {
-            return new AnonymousUser();
+            return null;
         }
 
         $userData = reset($data);
 
-        return new AuthenticatedUser($userData['id'], $userData['username'], $userData['password'], $userData['session_id'],
-                                     new \DateTime($userData['session_expires_at']));
+        return new User($userData['id'], $userData['username'], $userData['password'], $userData['session_id'],
+                        new \DateTime($userData['session_expires_at']));
     }
 
-    public function findByUsername(string $username): UserInterface
+    public function findByUsername(string $username): ?UserInterface
     {
         $data = $this->database->select('*', 'user', ['username' => $username]);
 
         if (count($data) === 0) {
-            return new AnonymousUser();
+            return null;
         }
 
         $userData = reset($data);
 
-        return new AuthenticatedUser($userData['id'], $userData['username'], $userData['password'], $userData['session_id'],
-                                     new \DateTime($userData['session_expires_at']));
+        return new User($userData['id'], $userData['username'], $userData['password'], $userData['session_id'],
+                        new \DateTime($userData['session_expires_at']));
     }
 
     public function persist(UserInterface $user): void
@@ -57,7 +56,7 @@ class UserRepository
             $fields, ['id' => $user->getId()]);
     }
 
-    public function createUser(string $username, string $password): void
+    public function create(string $username, string $password): void
     {
         $this->database->insert('user', ['username' => $username, 'password' => $password]);
     }
@@ -73,8 +72,8 @@ class UserRepository
         $users = [];
 
         foreach ($data as $userData) {
-            $users[] = new AuthenticatedUser($userData['id'], $userData['username'], $userData['password'], $userData['session_id'],
-                                             new \DateTime($userData['session_expires_at']));
+            $users[] = new User($userData['id'], $userData['username'], $userData['password'], $userData['session_id'],
+                                new \DateTime($userData['session_expires_at']));
         }
 
         return $users;
@@ -85,8 +84,8 @@ class UserRepository
         $data     = $this->database->select('*', 'user', ['id' => $id]);
         $userData = reset($data);
 
-        return new AuthenticatedUser($userData['id'], $userData['username'], $userData['password'], $userData['session_id'],
-                                     new \DateTime($userData['session_expires_at']));
+        return new User($userData['id'], $userData['username'], $userData['password'], $userData['session_id'],
+                        new \DateTime($userData['session_expires_at']));
     }
 
     public function deleteById(int $id): void

@@ -2,12 +2,12 @@
 
 namespace App\Service;
 
-use App\Exception\AnonymousUserException;
+use App\Exception\NotAuthenticatedException;
 use App\Model\Request;
 use App\Model\User\UserInterface;
 use App\Repository\UserRepository;
 
-class Authentication
+class AuthenticationService
 {
     private Config $config;
 
@@ -23,8 +23,8 @@ class Authentication
     {
         $user = $this->userRepository->findBySessionId($request->getSessionId());
 
-        if ($user->isAuthenticated() === false) {
-            throw new AnonymousUserException();
+        if ($user === null) {
+            throw new NotAuthenticatedException();
         }
 
         $this->renewSession($user);
