@@ -4,25 +4,25 @@ namespace App\ValueObject;
 
 class FlashMessage
 {
-    public const SEVERITY_LEVEL_SUCCESS = 'success';
+    public const ALERT_LEVEL_SUCCESS = 'success';
 
-    public const SEVERITY_LEVEL_WARNING = 'warning';
+    public const ALERT_LEVEL_WARNING = 'warning';
 
-    public const SEVERITY_LEVEL_ERROR = 'error';
+    public const ALERT_LEVEL_ERROR = 'error';
 
-    private string $severityLevel;
+    private string $alertLevel;
 
     private string $message;
 
-    public function __construct(string $message, string $severityLevel)
+    public function __construct(string $message, string $alertLevel)
     {
-        $this->severityLevel = $severityLevel;
-        $this->message       = $message;
+        $this->alertLevel = $alertLevel;
+        $this->message    = $message;
     }
 
-    public function getSeverityLevel(): string
+    public function getAlertLevel(): string
     {
-        return $this->severityLevel;
+        return $this->alertLevel;
     }
 
     public function getMessage(): string

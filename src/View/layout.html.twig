@@ -16,11 +16,11 @@
 <div class="container">
     <div class="errors mt-5 mb-4">
         {% for message in sessionService.flashes %}
-            {% if message.severityLevel == constant('App\\ValueObject\\FlashMessage::SEVERITY_LEVEL_WARNING') %}
+            {% if message.alertLevel == constant('App\\ValueObject\\FlashMessage::ALERT_LEVEL_WARNING') %}
                 {% set alertLevel = 'alert-warning' %}
-            {% elseif message.severityLevel == constant('App\\ValueObject\\FlashMessage::SEVERITY_LEVEL_ERROR') %}
+            {% elseif message.alertLevel == constant('App\\ValueObject\\FlashMessage::ALERT_LEVEL_ERROR') %}
                 {% set alertLevel = 'alert-danger' %}
-            {% elseif message.severityLevel == constant('App\\ValueObject\\FlashMessage::SEVERITY_LEVEL_SUCCESS') %}
+            {% elseif message.alertLevel == constant('App\\ValueObject\\FlashMessage::ALERT_LEVEL_SUCCESS') %}
                 {% set alertLevel = 'alert-success' %}
             {% endif %}
             <div class='alert {{ alertLevel }}' role='alert'>{{ message.message }}</div>

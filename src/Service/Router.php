@@ -66,7 +66,7 @@ class Router
             }
         } catch (NotAuthenticatedException $e) {
             $this->sessionService->setFlash(
-                new FlashMessage($e->getMessage(), FlashMessage::SEVERITY_LEVEL_ERROR)
+                new FlashMessage($e->getMessage(), FlashMessage::ALERT_LEVEL_ERROR)
             );
 
             return new RedirectResponse('/admin/login');

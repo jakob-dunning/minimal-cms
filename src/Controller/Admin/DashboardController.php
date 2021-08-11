@@ -30,7 +30,7 @@ class DashboardController
 
     private Environment $twig;
 
-    private AuthenticationService $authentication;
+    private AuthenticationService $authenticationService;
 
     private SessionService $sessionService;
 
@@ -39,22 +39,22 @@ class DashboardController
         PageRepository $pageRepository,
         Config $config,
         Environment $twig,
-        AuthenticationService $authentication,
+        AuthenticationService $authenticationService,
         SessionService $sessionService
     ) {
-        $this->config         = $config;
-        $this->userRepository = $userRepository;
-        $this->pageRepository = $pageRepository;
-        $this->twig           = $twig;
-        $this->authentication = $authentication;
-        $this->sessionService = $sessionService;
+        $this->config                = $config;
+        $this->userRepository        = $userRepository;
+        $this->pageRepository        = $pageRepository;
+        $this->twig                  = $twig;
+        $this->authenticationService = $authenticationService;
+        $this->sessionService        = $sessionService;
     }
 
     public function login(Request $request): ResponseInterface
     {
         if ($request->getMethod() === Request::METHOD_GET) {
             try {
-                $this->authentication->authenticateUser($request);
+                $this->authenticationService->authenticateUser($request);
             } catch (NotAuthenticatedException $e) {
                 return new Response($this->twig->render('login.html.twig'));
             }
@@ -68,7 +68,7 @@ class DashboardController
 
         $user = $this->userRepository->findByUsername($request->getPost()['user'] ?? '');
 
-        if($user === null) {
+        if ($user === null) {
             throw new NotAuthenticatedException();
         }
 
@@ -77,7 +77,7 @@ class DashboardController
         }
 
         $user->setSessionId($request->getSessionId());
-        $this->authentication->renewSession($user);
+        $this->authenticationService->renewSession($user);
 
         $this->userRepository->persist($user);
 
@@ -86,7 +86,7 @@ class DashboardController
 
     public function logout(Request $request)
     {
-        $user = $this->authentication->authenticateUser($request);
+        $user = $this->authenticationService->authenticateUser($request);
 
         $user->setSessionIdExpiresAt(null);
         $user->setSessionId(null);
@@ -98,7 +98,7 @@ class DashboardController
 
     public function dashboard(Request $request): ResponseInterface
     {
-        $this->authentication->authenticateUser($request);
+        $this->authenticationService->authenticateUser($request);
 
         $users = $this->userRepository->findAll();
         $pages = $this->pageRepository->findAll();

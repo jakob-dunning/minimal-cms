@@ -31,20 +31,20 @@ class Factory
                 $this->createPageRepository(),
                 $this->createConfig(),
                 $this->createTwig(),
-                $this->createAuthentication(),
+                $this->createAuthenticationService(),
                 $this->createSessionService()
             ),
             new UserController(
                 $this->createUserRepository(),
                 $this->createTwig(),
-                $this->createAuthentication(),
+                $this->createAuthenticationService(),
                 $this->createSessionService()
             ),
             new PageController(
                 $this->createPageRepository(),
                 $this->createUserRepository(),
                 $this->createTwig(),
-                $this->createAuthentication(),
+                $this->createAuthenticationService(),
                 $this->createSessionService()
             ),
             new PublicController(
@@ -66,7 +66,7 @@ class Factory
         return $twig;
     }
 
-    private function createAuthentication(): AuthenticationService
+    private function createAuthenticationService(): AuthenticationService
     {
         return new AuthenticationService($this->createConfig(), $this->createUserRepository());
     }

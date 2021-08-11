@@ -24,7 +24,7 @@ class PageController
 
     private Environment $twig;
 
-    private AuthenticationService $authentication;
+    private AuthenticationService $authenticationService;
     /**
      * @var SessionService
      */
@@ -34,19 +34,19 @@ class PageController
         PageRepository $pageRepository,
         UserRepository $userRepository,
         Environment $twig,
-        AuthenticationService $authentication,
+        AuthenticationService $authenticationService,
         SessionService $sessionService
     ) {
-        $this->pageRepository = $pageRepository;
-        $this->userRepository = $userRepository;
-        $this->twig           = $twig;
-        $this->authentication = $authentication;
-        $this->sessionService = $sessionService;
+        $this->pageRepository        = $pageRepository;
+        $this->userRepository        = $userRepository;
+        $this->twig                  = $twig;
+        $this->authenticationService = $authenticationService;
+        $this->sessionService        = $sessionService;
     }
 
     public function list(Request $request)
     {
-        $this->authentication->authenticateUser($request);
+        $this->authenticationService->authenticateUser($request);
 
         $pages = $this->pageRepository->findAll();
 
@@ -57,27 +57,40 @@ class PageController
 
     public function add(Request $request): ResponseInterface
     {
-        $this->authentication->authenticateUser($request);
+        $this->authenticationService->authenticateUser($request);
 
-        if ($request->getMethod() === Request::METHOD_POST) {
-            $post = $request->getPost();
-
-            $this->pageRepository->create($post['uri'], $post['title'], $post['content']);
-            $this->sessionService->setFlash(
-                new FlashMessage('Page added successfully', FlashMessage::SEVERITY_LEVEL_SUCCESS)
+        if ($request->getMethod() === Request::METHOD_GET) {
+            return new Response(
+                $this->twig->render('page/single.html.twig', ['title' => 'Add page'])
             );
-
-            return new RedirectResponse('/admin/page');
         }
 
-        return new Response(
-            $this->twig->render('page/single.html.twig', ['title' => 'Add page'])
+        if ($request->getMethod() !== Request::METHOD_POST) {
+            throw new \Exception('Unknown method');
+        }
+
+        $post = $request->getPost();
+
+        try {
+            $this->pageRepository->create($post['uri'], $post['title'], $post['content']);
+        } catch (\Throwable $t) {
+            $this->sessionService->setFlash(
+                new FlashMessage($t->getMessage(), FlashMessage::ALERT_LEVEL_ERROR)
+            );
+
+            return new RedirectResponse('/admin/page/add');
+        }
+
+        $this->sessionService->setFlash(
+            new FlashMessage('Page added successfully', FlashMessage::ALERT_LEVEL_SUCCESS)
         );
+
+        return new RedirectResponse('/admin/page');
     }
 
     public function edit(Request $request): ResponseInterface
     {
-        $this->authentication->authenticateUser($request);
+        $this->authenticationService->authenticateUser($request);
 
         $get = $request->getGet();
 
@@ -97,7 +110,7 @@ class PageController
 
     public function delete(Request $request): ResponseInterface
     {
-        $this->authentication->authenticateUser($request);
+        $this->authenticationService->authenticateUser($request);
 
         $get = $request->getGet();
         $this->pageRepository->deleteById($get['id']);

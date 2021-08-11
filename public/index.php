@@ -21,8 +21,6 @@ try {
 
     echo $response->getBody();
 } catch (\Throwable $t) {
-    var_dump($t->getMessage());
-
     $twig = $factory->createTwig();
     $response = new Response($twig->render('error.html.twig', ['errors' => [$t->getMessage()]]));
 
