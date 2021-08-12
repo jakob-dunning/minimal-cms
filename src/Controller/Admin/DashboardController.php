@@ -2,7 +2,9 @@
 
 namespace App\Controller\Admin;
 
-use App\Exception\NotAuthenticatedException;
+use App\Exception\AuthenticationExceptionInterface;
+use App\Exception\MethodNotAllowedException;
+use App\Exception\UnknownUserException;
 use App\Model\Request;
 use App\Model\Response\RedirectResponse;
 use App\Model\Response\Response;
@@ -55,7 +57,7 @@ class DashboardController
         if ($request->getMethod() === Request::METHOD_GET) {
             try {
                 $this->authenticationService->authenticateUser($request);
-            } catch (NotAuthenticatedException $e) {
+            } catch (AuthenticationExceptionInterface $e) {
                 return new Response($this->twig->render('login.html.twig'));
             }
 
@@ -63,17 +65,17 @@ class DashboardController
         }
 
         if ($request->getMethod() !== Request::METHOD_POST) {
-            throw new NotAuthenticatedException();
+            throw new MethodNotAllowedException();
         }
 
-        $user = $this->userRepository->findByUsername($request->getPost()['user'] ?? '');
+        $user = $this->userRepository->findByUsername($request->post()['user'] ?? '');
 
         if ($user === null) {
-            throw new NotAuthenticatedException();
+            throw new UnknownUserException();
         }
 
-        if (password_verify($request->getPost()['password'], $user->getPassword()) === false) {
-            throw new NotAuthenticatedException();
+        if (password_verify($request->post()['password'], $user->getPassword()) === false) {
+            throw new UnknownUserException();
         }
 
         $user->setSessionId($request->getSessionId());
@@ -88,8 +90,13 @@ class DashboardController
     {
         $user = $this->authenticationService->authenticateUser($request);
 
+        if ($request->getMethod() !== Request::METHOD_GET) {
+            throw new MethodNotAllowedException();
+        }
+
         $user->setSessionIdExpiresAt(null);
         $user->setSessionId(null);
+        session_destroy();
 
         $this->userRepository->persist($user);
 

@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Exception\MethodNotAllowedException;
 use App\Model\Page;
 use App\Model\Request;
 use App\Model\Response\RedirectResponse;
@@ -48,42 +49,40 @@ class PageController
     {
         $this->authenticationService->authenticateUser($request);
 
+        if ($request->getMethod() !== Request::METHOD_GET) {
+            throw new MethodNotAllowedException();
+        }
+
         $pages = $this->pageRepository->findAll();
 
-        return new Response(
-            $this->twig->render('page/list.html.twig', ['pages' => $pages])
-        );
+        return new Response($this->twig->render('page/list.html.twig', ['pages' => $pages]));
     }
 
-    public function add(Request $request): ResponseInterface
+    public function create(Request $request): ResponseInterface
     {
         $this->authenticationService->authenticateUser($request);
 
         if ($request->getMethod() === Request::METHOD_GET) {
-            return new Response(
-                $this->twig->render('page/single.html.twig', ['title' => 'Add page'])
-            );
+            return new Response($this->twig->render('page/single.html.twig', ['title' => 'Add page']));
         }
 
         if ($request->getMethod() !== Request::METHOD_POST) {
-            throw new \Exception('Unknown method');
+            throw new MethodNotAllowedException();
         }
 
-        $post = $request->getPost();
+        $post = $request->post();
 
         try {
             $this->pageRepository->create($post['uri'], $post['title'], $post['content']);
         } catch (\Throwable $t) {
-            $this->sessionService->setFlash(
+            $this->sessionService->addFlash(
                 new FlashMessage($t->getMessage(), FlashMessage::ALERT_LEVEL_ERROR)
             );
 
-            return new RedirectResponse('/admin/page/add');
+            return new RedirectResponse('/admin/page/create');
         }
 
-        $this->sessionService->setFlash(
-            new FlashMessage('Page added successfully', FlashMessage::ALERT_LEVEL_SUCCESS)
-        );
+        $this->sessionService->addFlash(new FlashMessage('Page added successfully', FlashMessage::ALERT_LEVEL_SUCCESS));
 
         return new RedirectResponse('/admin/page');
     }
@@ -92,18 +91,25 @@ class PageController
     {
         $this->authenticationService->authenticateUser($request);
 
-        $get = $request->getGet();
+        $get  = $request->get();
+        $page = $this->pageRepository->findById($get['id']);
 
-        if ($request->getMethod() !== Request::METHOD_POST) {
-            $page = $this->pageRepository->findById($get['id']);
-
+        if ($request->getMethod() === Request::METHOD_GET) {
             return new Response(
                 $this->twig->render('page/single.html.twig', ['title' => 'Edit page', 'page' => $page])
             );
         }
 
-        $post = $request->getPost();
-        $this->pageRepository->persist(new Page($get['id'], $post['uri'], $post['title'], $post['content']));
+        if ($request->getMethod() !== Request::METHOD_POST) {
+            throw new MethodNotAllowedException();
+        }
+
+        $pageData = $request->post();
+        $page->setContent($pageData['content'])
+             ->setTitle($pageData['title'])
+             ->setUri($pageData['uri']);
+        $this->pageRepository->persist($page);
+        $this->sessionService->addFlash(new FlashMessage('Page edited successfully', FlashMessage::ALERT_LEVEL_SUCCESS));
 
         return new RedirectResponse('/admin/page');
     }
@@ -112,8 +118,13 @@ class PageController
     {
         $this->authenticationService->authenticateUser($request);
 
-        $get = $request->getGet();
+        if ($request->getMethod() !== Request::METHOD_GET) {
+            throw new MethodNotAllowedException();
+        }
+
+        $get = $request->get();
         $this->pageRepository->deleteById($get['id']);
+        $this->sessionService->addFlash(new FlashMessage('User deleted successfully', FlashMessage::ALERT_LEVEL_SUCCESS));
 
         return new RedirectResponse('/admin/page');
     }

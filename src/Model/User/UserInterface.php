@@ -4,8 +4,6 @@ namespace App\Model\User;
 
 interface UserInterface
 {
-    public function isAuthenticated(): bool;
-
     public function getPassword(): string;
 
     public function getUserName(): string;

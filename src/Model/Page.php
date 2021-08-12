@@ -20,6 +20,11 @@ class Page
         $this->id      = $id;
     }
 
+    public static function createFromArray($pageData): self
+    {
+        return new self($pageData['id'], $pageData['uri'], $pageData['title'], $pageData['content']);
+    }
+
     public function getUri(): string
     {
         return $this->uri;
@@ -35,8 +40,29 @@ class Page
         return $this->title;
     }
 
-    public function getId() : int
+    public function getId(): int
     {
         return $this->id;
+    }
+
+    public function setContent(string $content) : self
+    {
+        $this->content = $content;
+
+        return $this;
+    }
+
+    public function setTitle(string $title) : self
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    public function setUri(string $uri) : self
+    {
+        $this->uri = $uri;
+
+        return $this;
     }
 }

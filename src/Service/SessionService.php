@@ -6,7 +6,7 @@ use App\ValueObject\FlashMessage;
 
 class SessionService
 {
-    public function setFlash(FlashMessage $message): void
+    public function addFlash(FlashMessage $message): void
     {
         if (is_array($_SESSION['flashes']) === false) {
             $_SESSION['flashes'] = [];

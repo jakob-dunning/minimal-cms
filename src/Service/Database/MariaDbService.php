@@ -13,7 +13,7 @@ class MariaDbService implements RelationalDatabaseInterface
         $this->pdo = $pdo;
     }
 
-    public function select($fields, string $table, array $conditions): array
+    public function select($fields, string $table, array $conditions = []): array
     {
         $fieldsSql     = is_array($fields) ? implode(',', $fields) : $fields;
         $conditionsSql = (count($conditions) > 0) ? 'WHERE ' : '';

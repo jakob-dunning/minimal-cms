@@ -4,7 +4,7 @@ namespace App\Service\Database;
 
 interface RelationalDatabaseInterface
 {
-    public function select($fields, string $table, array $conditions): array;
+    public function select($fields, string $table, array $conditions = []): array;
 
     public function insert(string $table, array $fields): void;
 

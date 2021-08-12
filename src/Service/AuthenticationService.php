@@ -2,7 +2,8 @@
 
 namespace App\Service;
 
-use App\Exception\NotAuthenticatedException;
+use App\Exception\ExpiredSessionException;
+use App\Exception\UnknownUserException;
 use App\Model\Request;
 use App\Model\User\UserInterface;
 use App\Repository\UserRepository;
@@ -24,7 +25,11 @@ class AuthenticationService
         $user = $this->userRepository->findBySessionId($request->getSessionId());
 
         if ($user === null) {
-            throw new NotAuthenticatedException();
+            throw new UnknownUserException();
+        }
+
+        if (new \DateTime() > $user->getSessionExpiresAt()) {
+            throw new ExpiredSessionException();
         }
 
         $this->renewSession($user);

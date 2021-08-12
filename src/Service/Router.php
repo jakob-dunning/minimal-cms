@@ -6,29 +6,31 @@ use App\Controller\Admin\DashboardController;
 use App\Controller\Admin\PageController;
 use App\Controller\Admin\UserController;
 use App\Controller\PublicController;
-use App\Exception\NotAuthenticatedException;
+use App\Exception\AuthenticationExceptionInterface;
 use App\Model\Request;
 use App\Model\Response\RedirectResponse;
 use App\Model\Response\ResponseInterface;
 use App\ValueObject\FlashMessage;
+use Twig\Environment;
 
 class Router
 {
-    private const ADMIN_ROUTING_TABLE = [
+    private const ROUTING_TABLE = [
         '/admin/login'       => ['dashboardController', 'login'],
         '/admin/logout'      => ['dashboardController', 'logout'],
         '/admin/dashboard'   => ['dashboardController', 'dashboard'],
         '/admin/user'        => ['userController', 'list'],
-        '/admin/user/add'    => ['userController', 'add'],
+        '/admin/user/create' => ['userController', 'create'],
         '/admin/user/edit'   => ['userController', 'edit'],
         '/admin/user/delete' => ['userController', 'delete'],
         '/admin/page'        => ['pageController', 'list'],
-        '/admin/page/add'    => ['pageController', 'add'],
+        '/admin/page/create' => ['pageController', 'create'],
         '/admin/page/edit'   => ['pageController', 'edit'],
         '/admin/page/delete' => ['pageController', 'delete'],
+        '/error'             => ['publicController', 'error'],
     ];
 
-    private PublicController $defaultController;
+    private PublicController $publicController;
 
     private DashboardController $dashboardController;
 
@@ -38,14 +40,16 @@ class Router
 
     private SessionService $sessionService;
 
+    private Environment $twig;
+
     public function __construct(
         DashboardController $dashboardController,
         UserController $userController,
         PageController $pageController,
-        PublicController $defaultController,
+        PublicController $publicController,
         SessionService $sessionService
     ) {
-        $this->defaultController   = $defaultController;
+        $this->publicController    = $publicController;
         $this->dashboardController = $dashboardController;
         $this->userController      = $userController;
         $this->pageController      = $pageController;
@@ -57,21 +61,22 @@ class Router
         $uri = $request->getUri();
 
         try {
-            if (key_exists($uri, self::ADMIN_ROUTING_TABLE)) {
-                $route      = self::ADMIN_ROUTING_TABLE[$uri];
+            if (key_exists($uri, self::ROUTING_TABLE)) {
+                $route      = self::ROUTING_TABLE[$uri];
                 $controller = $route[0];
                 $method     = $route[1];
 
                 return $this->$controller->$method($request);
             }
-        } catch (NotAuthenticatedException $e) {
-            $this->sessionService->setFlash(
+
+            return $this->publicController->page($request);
+        } catch (AuthenticationExceptionInterface $e) {
+            $this->sessionService->addFlash(
                 new FlashMessage($e->getMessage(), FlashMessage::ALERT_LEVEL_ERROR)
             );
-
             return new RedirectResponse('/admin/login');
+        } catch (\Throwable $t) {
+            return new RedirectResponse('/error', $t->getCode());
         }
-
-        return $this->defaultController->page($request);
     }
 }

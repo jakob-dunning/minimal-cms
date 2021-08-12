@@ -24,7 +24,7 @@ class PageRepository
 
         $pageData = reset($data);
 
-        return new Page($pageData['id'], $pageData['uri'], $pageData['title'], $pageData['content']);
+        return Page::createFromArray($pageData);
     }
 
     public function create(string $uri, string $title, string $content): void
@@ -34,11 +34,11 @@ class PageRepository
 
     public function findAll(): array
     {
-        $data  = $this->database->select('*', 'page', []);
+        $data  = $this->database->select('*', 'page');
         $pages = [];
 
         foreach ($data as $pageData) {
-            $pages[] = new Page($pageData['id'], $pageData['uri'], $pageData['title'], $pageData['content']);
+            $pages[] = Page::createFromArray($pageData);
         }
 
         return $pages;
@@ -49,7 +49,7 @@ class PageRepository
         $data     = $this->database->select('*', 'page', ['id' => $id]);
         $pageData = reset($data);
 
-        return new Page($pageData['id'], $pageData['uri'], $pageData['title'], $pageData['content']);
+        return Page::createFromArray($pageData);
     }
 
     public function persist(Page $page): void

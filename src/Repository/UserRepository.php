@@ -24,9 +24,9 @@ class UserRepository
         }
 
         $userData = reset($data);
+        $userData['session_expires_at'] = new \DateTime($userData['session_expires_at']);
 
-        return new User($userData['id'], $userData['username'], $userData['password'], $userData['session_id'],
-                        new \DateTime($userData['session_expires_at']));
+        return User::createFromArray($userData);
     }
 
     public function findByUsername(string $username): ?UserInterface
@@ -38,9 +38,9 @@ class UserRepository
         }
 
         $userData = reset($data);
+        $userData['session_expires_at'] = new \DateTime($userData['session_expires_at']);
 
-        return new User($userData['id'], $userData['username'], $userData['password'], $userData['session_id'],
-                        new \DateTime($userData['session_expires_at']));
+        return User::createFromArray($userData);
     }
 
     public function persist(UserInterface $user): void
@@ -53,7 +53,9 @@ class UserRepository
 
         $this->database->update(
             'user',
-            $fields, ['id' => $user->getId()]);
+            $fields,
+            ['id' => $user->getId()]
+        );
     }
 
     public function create(string $username, string $password): void
@@ -63,7 +65,7 @@ class UserRepository
 
     public function findAll(): array
     {
-        $data = $this->database->select('*', 'user', []);
+        $data = $this->database->select('*', 'user');
 
         if ($data === false) {
             return [];
@@ -72,8 +74,9 @@ class UserRepository
         $users = [];
 
         foreach ($data as $userData) {
-            $users[] = new User($userData['id'], $userData['username'], $userData['password'], $userData['session_id'],
-                                new \DateTime($userData['session_expires_at']));
+            $userData['session_expires_at'] = new \DateTime($userData['session_expires_at']);
+
+            $users[] = User::createFromArray($userData);
         }
 
         return $users;
@@ -83,9 +86,9 @@ class UserRepository
     {
         $data     = $this->database->select('*', 'user', ['id' => $id]);
         $userData = reset($data);
+        $userData['session_expires_at'] = new \DateTime($userData['session_expires_at']);
 
-        return new User($userData['id'], $userData['username'], $userData['password'], $userData['session_id'],
-                        new \DateTime($userData['session_expires_at']));
+        return User::createFromArray($userData);
     }
 
     public function deleteById(int $id): void

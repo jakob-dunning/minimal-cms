@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Exception\MethodNotAllowedException;
 use App\Model\Request;
 use App\Model\Response\RedirectResponse;
 use App\Model\Response\Response;
@@ -34,43 +35,49 @@ class UserController
         $this->sessionService        = $sessionService;
     }
 
-    public function add(Request $request): ResponseInterface
+    public function create(Request $request): ResponseInterface
     {
         $this->authenticationService->authenticateUser($request);
 
-        if ($request->getMethod() !== Request::METHOD_POST) {
+        if ($request->getMethod() === Request::METHOD_GET) {
             return new Response($this->twig->render('user/single.html.twig'));
         }
 
-        $post = $request->getPost();
+        if ($request->getMethod() !== Request::METHOD_POST) {
+            throw new MethodNotAllowedException();
+        }
+
+        $post = $request->post();
 
         if ($post['password'] === '') {
-            $this->sessionService->setFlash(
+            $this->sessionService->addFlash(
                 new FlashMessage('Password cannot be empty', FlashMessage::ALERT_LEVEL_ERROR)
             );
+
+            return new RedirectResponse('/admin/user/create');
         }
 
         if ($post['password'] !== $post['repeat-password']) {
-            $this->sessionService->setFlash(
+            $this->sessionService->addFlash(
                 new FlashMessage('Passwords do not match', FlashMessage::ALERT_LEVEL_ERROR)
             );
 
-            return new Response($this->twig->render('user/single.html.twig',
-                                                    ['errors' => ['Passwords do not match']]));
+            return new RedirectResponse('/admin/user/create');
         }
 
         $password = password_hash($post['password'], PASSWORD_DEFAULT);
+
         try {
             $this->userRepository->create($post['user'], $password);
         } catch (\Throwable $t) {
-            $this->sessionService->setFlash(
+            $this->sessionService->addFlash(
                 new FlashMessage($t->getMessage(), FlashMessage::ALERT_LEVEL_ERROR)
             );
 
-            return new RedirectResponse('/admin/user/add');
+            return new RedirectResponse('/admin/user/create');
         }
 
-        $this->sessionService->setFlash(
+        $this->sessionService->addFlash(
             new FlashMessage('User created successfully', FlashMessage::ALERT_LEVEL_SUCCESS)
         );
 
@@ -92,40 +99,40 @@ class UserController
     {
         $this->authenticationService->authenticateUser($request);
 
-        $get  = $request->getGet();
+        $get  = $request->get();
         $user = $this->userRepository->findById($get['id']);
 
-        if ($request->getMethod() !== Request::METHOD_POST) {
+        if ($request->getMethod() === Request::METHOD_GET) {
             return new Response(
                 $this->twig->render('user/single.html.twig', ['title' => 'Edit user', 'user' => $user])
             );
         }
 
-        $post = $request->getPost();
+        if($request->getMethod() !== Request::METHOD_POST) {
+            throw new MethodNotAllowedException();
+        }
+
+        $post = $request->post();
 
         if ($post['password'] === '') {
-            $this->sessionService->setFlash(
+            $this->sessionService->addFlash(
                 new FlashMessage('Password cannot be empty', FlashMessage::ALERT_LEVEL_ERROR)
             );
 
-            return new Response(
-                $this->twig->render('user/single.html.twig', ['title' => 'Edit user', 'user' => $user])
-            );
+            return new RedirectResponse('/admin/user/edit');
         }
 
         if ($post['password'] !== $post['repeat-password']) {
-            $this->sessionService->setFlash(
+            $this->sessionService->addFlash(
                 new FlashMessage('Passwords do not match', FlashMessage::ALERT_LEVEL_ERROR)
             );
 
-            return new Response(
-                $this->twig->render('user/single.html.twig', ['title' => 'Edit user', 'user' => $user])
-            );
+            return new RedirectResponse('/admin/user/edit');
         }
 
         $user->setPassword(password_hash($post['password'], PASSWORD_DEFAULT));
         $this->userRepository->persist($user);
-        $this->sessionService->setFlash(
+        $this->sessionService->addFlash(
             new FlashMessage('New password saved successfully', FlashMessage::ALERT_LEVEL_SUCCESS)
         );
 
@@ -136,7 +143,7 @@ class UserController
     {
         $this->authenticationService->authenticateUser($request);
 
-        $get = $request->getGet();
+        $get = $request->get();
         $this->userRepository->deleteById($get['id']);
 
         return new RedirectResponse('/admin/user');

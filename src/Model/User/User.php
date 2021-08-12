@@ -23,13 +23,15 @@ class User implements UserInterface
         $this->id               = $id;
     }
 
-    public function isAuthenticated(): bool
+    public static function createFromArray($userData): self
     {
-        if (new \DateTime() > $this->sessionExpiresAt) {
-            return false;
-        }
-
-        return true;
+        return new self(
+            $userData['id'],
+            $userData['username'],
+            $userData['password'],
+            $userData['session_id'],
+            $userData['session_expires_at']
+        );
     }
 
     public function getPassword(): string

@@ -52,12 +52,12 @@ class Request
         return session_id();
     }
 
-    public function getPost(): array
+    public function post(): array
     {
         return $this->post;
     }
 
-    public function getGet(): array
+    public function get(): array
     {
         return $this->get;
     }

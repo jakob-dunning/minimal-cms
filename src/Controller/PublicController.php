@@ -29,4 +29,8 @@ class PublicController
 
         return new Response($this->twig->render('page.html.twig', ['page' => $page]));
     }
+
+    public function error(Request $request):Response {
+        return new Response($this->twig->render('error.html.twig'));
+    }
 }
