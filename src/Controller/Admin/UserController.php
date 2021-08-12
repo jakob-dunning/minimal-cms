@@ -145,6 +145,7 @@ class UserController
 
         $get = $request->get();
         $this->userRepository->deleteById($get['id']);
+        $this->sessionService->addFlash(new FlashMessage('User deleted successfully', FlashMessage::ALERT_LEVEL_SUCCESS));
 
         return new RedirectResponse('/admin/user');
     }

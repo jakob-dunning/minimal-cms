@@ -9,6 +9,7 @@ use App\Controller\PublicController;
 use App\Model\Request;
 use App\Model\Response\Response;
 use App\Service\Router;
+use App\Service\SessionService;
 use PHPUnit\Framework\TestCase;
 
 class RouterTest extends TestCase
@@ -36,13 +37,19 @@ class RouterTest extends TestCase
         $dashboardControllerMock = $this->createMock(DashboardController::class);
         $pageControllerMock      = $this->createMock(PageController::class);
         $defaultControllerMock   = $this->createMock(PublicController::class);
+        $sessionServiceMock      = $this->createMock(SessionService::class);
 
         $defaultControllerMock->expects($this->once())
                               ->method('page')
                               ->with($requestMock)
                               ->willReturn($responseMock);
 
-        $router   = new Router($dashboardControllerMock, $userControllerMock, $pageControllerMock, $defaultControllerMock);
+        $router   = new Router(
+            $dashboardControllerMock,
+            $userControllerMock,
+            $pageControllerMock,
+            $defaultControllerMock, $sessionServiceMock
+        );
         $response = $router->route($requestMock);
 
         $this->assertSame($headers, $response->getHeaders());

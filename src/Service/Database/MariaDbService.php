@@ -19,7 +19,7 @@ class MariaDbService implements RelationalDatabaseInterface
         $conditionsSql = (count($conditions) > 0) ? 'WHERE ' : '';
 
         foreach (array_keys($conditions) as $field) {
-            $conditionsSql .= ($conditionsSql === 'WHERE ') ? "{$field} = ?" : "AND WHERE {$field} = ?";
+            $conditionsSql .= ($conditionsSql === 'WHERE ') ? "{$field} = ?" : " AND WHERE {$field} = ?";
         }
 
         $statement = $this->pdo->prepare("SELECT {$fieldsSql} FROM {$table} {$conditionsSql}");

@@ -77,8 +77,6 @@ class Router
             );
             return new RedirectResponse('/admin/login');
         } catch (\Throwable $t) {
-            die($t->getMessage());
-
             return new RedirectResponse('/error', $t->getCode());
         }
     }

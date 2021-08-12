@@ -124,7 +124,7 @@ class PageController
 
         $get = $request->get();
         $this->pageRepository->deleteById($get['id']);
-        $this->sessionService->addFlash(new FlashMessage('User deleted successfully', FlashMessage::ALERT_LEVEL_SUCCESS));
+        $this->sessionService->addFlash(new FlashMessage('Page deleted successfully', FlashMessage::ALERT_LEVEL_SUCCESS));
 
         return new RedirectResponse('/admin/page');
     }
