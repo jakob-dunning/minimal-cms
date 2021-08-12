@@ -10,6 +10,7 @@ use Twig\Environment;
 class PublicController
 {
     public const MENU = [
+        ['label' => 'Home', 'target' => '/'],
         ['label' => 'Login', 'target' => '/admin/login'],
     ];
 
@@ -30,7 +31,15 @@ class PublicController
         return new Response($this->twig->render('page.html.twig', ['page' => $page]));
     }
 
-    public function error(Request $request):Response {
+    public function home(): Response
+    {
+        $pages = $this->pageRepository->findAll();
+
+        return new Response($this->twig->render('home.html.twig', ['pages' => $pages]));
+    }
+
+    public function error(): Response
+    {
         return new Response($this->twig->render('error.html.twig'));
     }
 }

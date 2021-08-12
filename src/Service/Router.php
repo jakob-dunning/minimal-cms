@@ -28,6 +28,7 @@ class Router
         '/admin/page/edit'   => ['pageController', 'edit'],
         '/admin/page/delete' => ['pageController', 'delete'],
         '/error'             => ['publicController', 'error'],
+        '/'                  => ['publicController', 'home'],
     ];
 
     private PublicController $publicController;
@@ -76,6 +77,8 @@ class Router
             );
             return new RedirectResponse('/admin/login');
         } catch (\Throwable $t) {
+            die($t->getMessage());
+
             return new RedirectResponse('/error', $t->getCode());
         }
     }

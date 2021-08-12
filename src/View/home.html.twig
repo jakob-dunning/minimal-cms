@@ -1,0 +1,18 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}
+    Welcome to my list
+{% endblock %}
+
+{% block body %}
+    <table class="table table-striped">
+        <tbody>
+        {% for page in pages %}
+            <tr>
+                <td><a href="{{ page.uri }}">{{ page.title }}</a></td>
+                <td>{{ page.content|u.truncate(100, '...', true) }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

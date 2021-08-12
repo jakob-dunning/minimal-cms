@@ -12,6 +12,7 @@ use App\Repository\UserRepository;
 use App\Service\Database\MariaDbService;
 use PDO;
 use Twig\Environment;
+use Twig\Extra\String\StringExtension;
 use Twig\Loader\FilesystemLoader;
 
 class Factory
@@ -62,6 +63,7 @@ class Factory
         $twig->addGlobal('menu', PublicController::MENU);
         $twig->addGlobal('request', $this->request);
         $twig->addGlobal('sessionService', $this->createSessionService());
+        $twig->addExtension(new StringExtension());
 
         return $twig;
     }
