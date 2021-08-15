@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\User;
+namespace App\Entity\User;
 
 interface UserInterface
 {

@@ -2,8 +2,8 @@
 
 namespace App\Repository;
 
-use App\Model\User\User;
-use App\Model\User\UserInterface;
+use App\Entity\User\User;
+use App\Entity\User\UserInterface;
 use App\Service\Database\RelationalDatabaseInterface;
 
 class UserRepository

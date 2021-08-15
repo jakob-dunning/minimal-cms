@@ -5,7 +5,7 @@ namespace App\Service;
 use App\Exception\ExpiredSessionException;
 use App\Exception\UnknownUserException;
 use App\Model\Request;
-use App\Model\User\UserInterface;
+use App\Entity\User\UserInterface;
 use App\Repository\UserRepository;
 
 class AuthenticationService

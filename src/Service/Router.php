@@ -83,6 +83,8 @@ class Router
             );
             return new RedirectResponse('/admin/login');
         } catch (\Throwable $t) {
+            var_dump($t->getMessage());
+
             return new RedirectResponse('/error', $t->getCode());
         }
     }

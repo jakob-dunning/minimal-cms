@@ -5,7 +5,7 @@ namespace Test;
 use App\Exception\ExpiredSessionException;
 use App\Exception\UnknownUserException;
 use App\Model\Request;
-use App\Model\User\User;
+use App\Entity\User\User;
 use App\Repository\UserRepository;
 use App\Service\AuthenticationService;
 use App\Service\Config;

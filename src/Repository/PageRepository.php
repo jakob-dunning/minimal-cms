@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Model\Page;
+use App\Entity\Page;
 use App\Service\Database\RelationalDatabaseInterface;
 
 class PageRepository
