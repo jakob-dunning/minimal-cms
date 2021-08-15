@@ -17,7 +17,7 @@ class UserRepository
 
     public function findBySessionId(string $sessionId): ?UserInterface
     {
-        $data = $this->database->select('*', 'user', ['session_id' => $sessionId]);
+        $data = $this->database->select(['*'], 'user', ['session_id' => $sessionId]);
 
         if (count($data) === 0) {
             return null;
@@ -31,7 +31,7 @@ class UserRepository
 
     public function findByUsername(string $username): ?UserInterface
     {
-        $data = $this->database->select('*', 'user', ['username' => $username]);
+        $data = $this->database->select(['*'], 'user', ['username' => $username]);
 
         if (count($data) === 0) {
             return null;
@@ -65,7 +65,7 @@ class UserRepository
 
     public function findAll(): array
     {
-        $data = $this->database->select('*', 'user');
+        $data = $this->database->select(['*'], 'user');
 
         if ($data === false) {
             return [];
@@ -84,7 +84,7 @@ class UserRepository
 
     public function findById(int $id): UserInterface
     {
-        $data     = $this->database->select('*', 'user', ['id' => $id]);
+        $data     = $this->database->select(['*'], 'user', ['id' => $id]);
         $userData = reset($data);
         $userData['session_expires_at'] = new \DateTime($userData['session_expires_at']);
 

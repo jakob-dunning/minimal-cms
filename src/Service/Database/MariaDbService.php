@@ -13,9 +13,9 @@ class MariaDbService implements RelationalDatabaseInterface
         $this->pdo = $pdo;
     }
 
-    public function select($fields, string $table, array $conditions = []): array
+    public function select(array $fields, string $table, array $conditions = []): array
     {
-        $fieldsSql     = is_array($fields) ? implode(',', $fields) : $fields;
+        $fieldsSql     = implode(',', $fields);
         $conditionsSql = (count($conditions) > 0) ? 'WHERE ' : '';
 
         foreach (array_keys($conditions) as $field) {
@@ -33,7 +33,7 @@ class MariaDbService implements RelationalDatabaseInterface
         $fieldsSql = implode(',', array_keys($fields));
         $valuesSql = implode(',', array_fill(0, count($fields), '?'));
 
-        $statement = $this->pdo->prepare("INSERT INTO {$table} ({$fieldsSql}) values ({$valuesSql})");
+        $statement = $this->pdo->prepare("INSERT INTO {$table} ({$fieldsSql}) VALUES ({$valuesSql})");
         $statement->execute(array_values($fields));
     }
 
@@ -53,8 +53,7 @@ class MariaDbService implements RelationalDatabaseInterface
                 : " AND WHERE {$field} = ?";
         }
 
-        $statement = $this->pdo->prepare(
-            "UPDATE {$table} SET {$fieldsSql} {$conditionsSql}");
+        $statement = $this->pdo->prepare("UPDATE {$table} SET {$fieldsSql} {$conditionsSql}");
         $statement->execute(array_merge(array_values($fields), array_values($conditions)));
     }
 

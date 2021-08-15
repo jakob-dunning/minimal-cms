@@ -3,7 +3,6 @@
 namespace App\Controller\Admin;
 
 use App\Exception\AuthenticationExceptionInterface;
-use App\Exception\MethodNotAllowedException;
 use App\Exception\UnknownUserException;
 use App\Model\Request;
 use App\Model\Response\RedirectResponse;
@@ -64,10 +63,6 @@ class DashboardController
             return new RedirectResponse('/admin/dashboard');
         }
 
-        if ($request->getMethod() !== Request::METHOD_POST) {
-            throw new MethodNotAllowedException();
-        }
-
         $user = $this->userRepository->findByUsername($request->post()['user'] ?? '');
 
         if ($user === null) {
@@ -86,15 +81,11 @@ class DashboardController
         return new RedirectResponse('/admin/dashboard');
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request): ResponseInterface
     {
         $user = $this->authenticationService->authenticateUser($request);
 
-        if ($request->getMethod() !== Request::METHOD_GET) {
-            throw new MethodNotAllowedException();
-        }
-
-        $user->setSessionIdExpiresAt(null);
+        $user->setSessionExpiresAt(null);
         $user->setSessionId(null);
         session_destroy();
 

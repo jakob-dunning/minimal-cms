@@ -70,12 +70,17 @@ class Factory
 
     private function createAuthenticationService(): AuthenticationService
     {
-        return new AuthenticationService($this->createConfig(), $this->createUserRepository());
+        return new AuthenticationService($this->createConfig(), $this->createUserRepository(), $this->createDateTimeService());
     }
 
     private function createDatabase(): MariaDbService
     {
         return new MariaDbService($this->createPDO());
+    }
+
+    private function createDateTimeService(): DateTimeService
+    {
+        return new DateTimeService();
     }
 
     private function createUserRepository(): UserRepository

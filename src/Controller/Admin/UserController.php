@@ -2,7 +2,6 @@
 
 namespace App\Controller\Admin;
 
-use App\Exception\MethodNotAllowedException;
 use App\Model\Request;
 use App\Model\Response\RedirectResponse;
 use App\Model\Response\Response;
@@ -41,10 +40,6 @@ class UserController
 
         if ($request->getMethod() === Request::METHOD_GET) {
             return new Response($this->twig->render('user/single.html.twig'));
-        }
-
-        if ($request->getMethod() !== Request::METHOD_POST) {
-            throw new MethodNotAllowedException();
         }
 
         $post = $request->post();
@@ -106,10 +101,6 @@ class UserController
             return new Response(
                 $this->twig->render('user/single.html.twig', ['title' => 'Edit user', 'user' => $user])
             );
-        }
-
-        if($request->getMethod() !== Request::METHOD_POST) {
-            throw new MethodNotAllowedException();
         }
 
         $post = $request->post();

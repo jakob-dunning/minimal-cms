@@ -44,19 +44,12 @@ class User implements UserInterface
         return $this->username;
     }
 
-    public function setSessionExpiresAt(?\DateTime $time): self
-    {
-        $this->sessionExpiresAt = $time;
-
-        return $this;
-    }
-
     public function getSessionExpiresAt(): ?\DateTime
     {
         return $this->sessionExpiresAt;
     }
 
-    public function setSessionIdExpiresAt(?\DateTime $time): self
+    public function setSessionExpiresAt(?\DateTime $time): self
     {
         $this->sessionExpiresAt = $time;
 

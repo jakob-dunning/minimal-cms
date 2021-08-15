@@ -14,10 +14,13 @@ class AuthenticationService
 
     private UserRepository $userRepository;
 
-    public function __construct(Config $config, UserRepository $userRepository)
+    private DateTimeService $dateTimeService;
+
+    public function __construct(Config $config, UserRepository $userRepository, DateTimeService $dateTimeService)
     {
         $this->config         = $config;
         $this->userRepository = $userRepository;
+        $this->dateTimeService = $dateTimeService;
     }
 
     public function authenticateUser(Request $request): UserInterface
@@ -28,7 +31,7 @@ class AuthenticationService
             throw new UnknownUserException();
         }
 
-        if (new \DateTime() > $user->getSessionExpiresAt()) {
+        if ($this->dateTimeService->now() > $user->getSessionExpiresAt()) {
             throw new ExpiredSessionException();
         }
 
@@ -40,6 +43,6 @@ class AuthenticationService
     public function renewSession(UserInterface $user): void
     {
         $sessionExpirationTime = $this->config->getByKey('sessionExpirationTime');
-        $user->setSessionIdExpiresAt((new \DateTime())->modify('+' . $sessionExpirationTime . ' minutes'));
+        $user->setSessionExpiresAt(($this->dateTimeService->now())->modify('+' . $sessionExpirationTime . ' minutes'));
     }
 }

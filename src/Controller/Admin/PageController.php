@@ -2,8 +2,6 @@
 
 namespace App\Controller\Admin;
 
-use App\Exception\MethodNotAllowedException;
-use App\Model\Page;
 use App\Model\Request;
 use App\Model\Response\RedirectResponse;
 use App\Model\Response\Response;
@@ -13,8 +11,6 @@ use App\Repository\UserRepository;
 use App\Service\AuthenticationService;
 use App\Service\SessionService;
 use App\ValueObject\FlashMessage;
-use App\View\AddPage;
-use App\View\ListPage;
 use Twig\Environment;
 
 class PageController
@@ -26,9 +22,7 @@ class PageController
     private Environment $twig;
 
     private AuthenticationService $authenticationService;
-    /**
-     * @var SessionService
-     */
+
     private SessionService $sessionService;
 
     public function __construct(
@@ -45,13 +39,9 @@ class PageController
         $this->sessionService        = $sessionService;
     }
 
-    public function list(Request $request)
+    public function list(Request $request) : ResponseInterface
     {
         $this->authenticationService->authenticateUser($request);
-
-        if ($request->getMethod() !== Request::METHOD_GET) {
-            throw new MethodNotAllowedException();
-        }
 
         $pages = $this->pageRepository->findAll();
 
@@ -64,10 +54,6 @@ class PageController
 
         if ($request->getMethod() === Request::METHOD_GET) {
             return new Response($this->twig->render('page/single.html.twig', ['title' => 'Add page']));
-        }
-
-        if ($request->getMethod() !== Request::METHOD_POST) {
-            throw new MethodNotAllowedException();
         }
 
         $post = $request->post();
@@ -100,10 +86,6 @@ class PageController
             );
         }
 
-        if ($request->getMethod() !== Request::METHOD_POST) {
-            throw new MethodNotAllowedException();
-        }
-
         $pageData = $request->post();
         $page->setContent($pageData['content'])
              ->setTitle($pageData['title'])
@@ -117,10 +99,6 @@ class PageController
     public function delete(Request $request): ResponseInterface
     {
         $this->authenticationService->authenticateUser($request);
-
-        if ($request->getMethod() !== Request::METHOD_GET) {
-            throw new MethodNotAllowedException();
-        }
 
         $get = $request->get();
         $this->pageRepository->deleteById($get['id']);

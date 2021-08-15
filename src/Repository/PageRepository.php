@@ -16,7 +16,7 @@ class PageRepository
 
     public function findByUri(string $uri): Page
     {
-        $data = $this->database->select('*', 'page', ['uri' => $uri]);
+        $data = $this->database->select(['*'], 'page', ['uri' => $uri]);
 
         if (count($data) === 0) {
             throw new \Exception('Page not found for route: ' . $uri);
@@ -34,7 +34,7 @@ class PageRepository
 
     public function findAll(): array
     {
-        $data  = $this->database->select('*', 'page');
+        $data  = $this->database->select(['*'], 'page');
         $pages = [];
 
         foreach ($data as $pageData) {
@@ -46,7 +46,7 @@ class PageRepository
 
     public function findById(int $id): Page
     {
-        $data     = $this->database->select('*', 'page', ['id' => $id]);
+        $data     = $this->database->select(['*'], 'page', ['id' => $id]);
         $pageData = reset($data);
 
         return Page::createFromArray($pageData);
