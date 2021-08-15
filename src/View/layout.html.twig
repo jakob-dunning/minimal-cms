@@ -15,7 +15,7 @@
 
 <div class="container">
     <div class="errors mt-5 mb-4">
-        {% for message in sessionService.flashes %}
+        {% for message in flashes %}
             {% if message.alertLevel == constant('App\\ValueObject\\FlashMessage::ALERT_LEVEL_WARNING') %}
                 {% set alertLevel = 'alert-warning' %}
             {% elseif message.alertLevel == constant('App\\ValueObject\\FlashMessage::ALERT_LEVEL_ERROR') %}

@@ -15,11 +15,8 @@ class SessionService
         $_SESSION['flashes'][] = $message;
     }
 
-    public function getFlashes(): array
+    public function deleteFlashes(): void
     {
-        $messages = $_SESSION['flashes'] ?? [];
         unset($_SESSION['flashes']);
-
-        return $messages;
     }
 }

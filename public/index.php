@@ -9,6 +9,7 @@ session_start();
 
 $request = Request::createFromGlobals();
 $factory = new Factory($request);
+$factory->createSessionService()->deleteFlashes();
 
 $router   = $factory->createRouter();
 $response = $router->route($request);
