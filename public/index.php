@@ -9,9 +9,9 @@ session_start();
 
 $request = Request::createFromGlobals();
 $factory = new Factory($request);
-$factory->createSessionService()->deleteFlashes();
+$router  = $factory->createRouter();
 
-$router   = $factory->createRouter();
+$factory->createSessionService()->deleteFlashes();
 $response = $router->route($request);
 
 foreach ($response->getHeaders() as $header) {
@@ -19,3 +19,4 @@ foreach ($response->getHeaders() as $header) {
 };
 
 echo $response->getBody();
+

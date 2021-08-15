@@ -6,17 +6,29 @@ use App\ValueObject\FlashMessage;
 
 class SessionService
 {
+    private array $session;
+
+    public function __construct(array &$session)
+    {
+        $this->session = &$session;
+    }
+
     public function addFlash(FlashMessage $message): void
     {
-        if (is_array($_SESSION['flashes']) === false) {
-            $_SESSION['flashes'] = [];
+        if (is_array($this->session['flashes']) === false) {
+            $this->session['flashes'] = [];
         }
 
-        $_SESSION['flashes'][] = $message;
+        $this->session['flashes'][] = $message;
+    }
+
+    public function getFlashes(): array
+    {
+        return $this->session['flashes'] ?? [];
     }
 
     public function deleteFlashes(): void
     {
-        unset($_SESSION['flashes']);
+        $this->session['flashes'] = [];
     }
 }

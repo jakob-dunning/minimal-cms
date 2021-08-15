@@ -16,15 +16,12 @@ class Request
 
     private array  $get;
 
-    private array  $session;
-
-    private function __construct(string $requestUri, string $method, array $post, array $get, array $session)
+    private function __construct(string $requestUri, string $method, array $post, array $get)
     {
         $this->requestUri = $requestUri;
         $this->post       = $post;
         $this->method     = $method;
         $this->get        = $get;
-        $this->session    = $session;
     }
 
     public static function createFromGlobals(): self
@@ -36,8 +33,7 @@ class Request
             ),
             filter_input(INPUT_SERVER, 'REQUEST_METHOD', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
             filter_input_array(INPUT_POST, FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? [],
-            filter_input_array(INPUT_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? [],
-            $_SESSION
+            filter_input_array(INPUT_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? []
         );
     }
 
@@ -64,10 +60,5 @@ class Request
     public function get(): array
     {
         return $this->get;
-    }
-
-    public function getSession(): array
-    {
-        return $this->session;
     }
 }

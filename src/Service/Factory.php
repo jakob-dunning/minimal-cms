@@ -62,7 +62,7 @@ class Factory
         $twig->addGlobal('adminMenu', DashboardController::ADMIN_MENU);
         $twig->addGlobal('menu', PublicController::MENU);
         $twig->addGlobal('request', $this->request);
-        $twig->addGlobal('flashes', $this->request->getSession()['flashes']);
+        $twig->addGlobal('flashes', $this->createSessionService()->getFlashes());
         $twig->addExtension(new StringExtension());
 
         return $twig;
@@ -117,6 +117,6 @@ class Factory
 
     function createSessionService(): SessionService
     {
-        return new SessionService();
+        return new SessionService($_SESSION);
     }
 }
