@@ -2,13 +2,15 @@
 
 namespace App\Model;
 
+use App\ValueObject\Uri;
+
 class Request
 {
-    public const        METHOD_POST = 'POST';
+    public const METHOD_POST = 'POST';
 
-    public const        METHOD_GET = 'GET';
+    public const METHOD_GET = 'GET';
 
-    private string $requestUri;
+    private Uri $requestUri;
 
     private array  $post;
 
@@ -16,7 +18,7 @@ class Request
 
     private array  $get;
 
-    private function __construct(string $requestUri, string $method, array $post, array $get)
+    private function __construct(Uri $requestUri, string $method, array $post, array $get)
     {
         $this->requestUri = $requestUri;
         $this->post       = $post;
@@ -27,17 +29,14 @@ class Request
     public static function createFromGlobals(): self
     {
         return new self(
-            parse_url(
-                filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
-                PHP_URL_PATH
-            ),
+            Uri::createFromString(filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_FULL_SPECIAL_CHARS)),
             filter_input(INPUT_SERVER, 'REQUEST_METHOD', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
             filter_input_array(INPUT_POST, FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? [],
             filter_input_array(INPUT_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? []
         );
     }
 
-    public function getUri(): string
+    public function getUri(): Uri
     {
         return $this->requestUri;
     }

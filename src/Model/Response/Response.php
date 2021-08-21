@@ -8,6 +8,8 @@ class Response implements ResponseInterface
 
     public const STATUS_UNAUTHORIZED = 401;
 
+    public const STATUS_NOT_ALLOWED = 405;
+
     private string $content;
 
     private array $headers = [];

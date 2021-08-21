@@ -8,9 +8,9 @@ use Throwable;
 /**
  * @codeCoverageIgnore
  */
-class ExpiredSessionException extends \Exception implements AuthenticationExceptionInterface
+class NotAuthenticatedException extends \Exception implements AuthenticationExceptionInterface
 {
-    public const MESSAGE = 'You have been logged out due to inactivity';
+    public const MESSAGE = 'Bad username or password';
 
     public function __construct(Throwable $previous = null)
     {

@@ -6,15 +6,21 @@ use App\Controller\Admin\DashboardController;
 use App\Controller\Admin\PageController;
 use App\Controller\Admin\UserController;
 use App\Controller\PublicController;
+use App\Exception\NotAuthenticatedException;
 use App\Model\Request;
 use App\Repository\PageRepository;
 use App\Repository\UserRepository;
 use App\Service\Database\MariaDbService;
+use App\Service\FileLoader\JsonFileLoader;
+use App\ValueObject\RouteList;
 use PDO;
 use Twig\Environment;
 use Twig\Extra\String\StringExtension;
 use Twig\Loader\FilesystemLoader;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Factory
 {
     private Request $request;
@@ -52,17 +58,27 @@ class Factory
                 $this->createPageRepository(),
                 $this->createTwig()
             ),
-            $this->createSessionService()
+            $this->createSessionService(),
+            $this->createConfig(),
+            $this->createTwig(),
+            RouteList::createFromArray((new JsonFileLoader(__DIR__ . '/../../config/routes.json'))->getData())
         );
     }
 
     public function createTwig(): Environment
     {
+        try {
+            $user = $this->createAuthenticationService()->authenticateUser($this->request);
+        } catch (NotAuthenticatedException $e) {
+            $user = null;
+        }
+
         $twig = new Environment(new FilesystemLoader(__DIR__ . '/../View/'));
         $twig->addGlobal('adminMenu', DashboardController::ADMIN_MENU);
-        $twig->addGlobal('menu', PublicController::MENU);
+        $twig->addGlobal('userMenu', PublicController::MENU);
         $twig->addGlobal('request', $this->request);
         $twig->addGlobal('flashes', $this->createSessionService()->getFlashes());
+        $twig->addGlobal('user', $user);
         $twig->addExtension(new StringExtension());
 
         return $twig;
@@ -112,7 +128,7 @@ class Factory
 
     private static function createConfig(): Config
     {
-        return new Config(__DIR__ . '/../../config/general.json');
+        return Config::createFromArray((new JsonFileLoader(__DIR__ . '/../../config/general.json'))->getData());
     }
 
     function createSessionService(): SessionService

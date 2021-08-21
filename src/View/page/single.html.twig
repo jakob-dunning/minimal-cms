@@ -1,11 +1,11 @@
-{% extends 'adminLayout.html.twig' %}
+{% extends 'layout.html.twig' %}
 
 {% block title %}
     {{ title }}
 {% endblock %}
 
 {% block body %}
-    <form method="post" action="{{ action }}">
+    <form method="post" action="{{ formTarget }}">
         <div class="mb-3">
             <label for="uri" class="form-label">Uri</label>
             <input type="text" class="form-control" name="uri" id="uri" value="{{ page.uri }}" pattern="^\/[-_a-zA-Z0-9]*" required>

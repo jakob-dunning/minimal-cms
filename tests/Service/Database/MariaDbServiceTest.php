@@ -1,10 +1,19 @@
 <?php
 
+namespace Test\Service\Database;
+
 use App\Service\Database\MariaDbService;
+use PDO;
+use PDOStatement;
 use PHPUnit\Framework\Constraint\IsEmpty;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @covers \App\Service\Database\MariaDbService
+ * @uses   \App\ValueObject\Uri
+ * @uses   \App\Service\Database\RelationalDatabaseInterface
+ */
 class MariaDbServiceTest extends TestCase
 {
     private MariaDbService $mariaDbService;

@@ -26,7 +26,7 @@ class PublicController
 
     public function page(Request $request): Response
     {
-        $page = $this->pageRepository->findByUri($request->getUri());
+        $page = $this->pageRepository->findByPath($request->getUri()->getPath());
 
         return new Response($this->twig->render('page.html.twig', ['page' => $page]));
     }

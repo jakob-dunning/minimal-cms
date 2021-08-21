@@ -10,28 +10,15 @@ use App\Exception\AuthenticationExceptionInterface;
 use App\Exception\MethodNotAllowedException;
 use App\Model\Request;
 use App\Model\Response\RedirectResponse;
+use App\Model\Response\Response;
 use App\Model\Response\ResponseInterface;
 use App\ValueObject\FlashMessage;
+use App\ValueObject\RouteList;
+use App\ValueObject\Uri;
 use Twig\Environment;
 
 class Router
 {
-    private const ROUTING_TABLE = [
-        '/admin/login'       => ['dashboardController', 'login', [Request::METHOD_GET, Request::METHOD_POST]],
-        '/admin/logout'      => ['dashboardController', 'logout', [Request::METHOD_GET]],
-        '/admin/dashboard'   => ['dashboardController', 'dashboard', [Request::METHOD_GET]],
-        '/admin/user'        => ['userController', 'list', [Request::METHOD_GET]],
-        '/admin/user/create' => ['userController', 'create', [Request::METHOD_GET, Request::METHOD_POST]],
-        '/admin/user/edit'   => ['userController', 'edit', [Request::METHOD_GET, Request::METHOD_POST]],
-        '/admin/user/delete' => ['userController', 'delete', [Request::METHOD_GET]],
-        '/admin/page'        => ['pageController', 'list', [Request::METHOD_GET]],
-        '/admin/page/create' => ['pageController', 'create', [Request::METHOD_GET, Request::METHOD_POST]],
-        '/admin/page/edit'   => ['pageController', 'edit', [Request::METHOD_GET, Request::METHOD_POST]],
-        '/admin/page/delete' => ['pageController', 'delete', [Request::METHOD_GET]],
-        '/error'             => ['publicController', 'error', [Request::METHOD_GET]],
-        '/'                  => ['publicController', 'home', [Request::METHOD_GET]],
-    ];
-
     private PublicController $publicController;
 
     private DashboardController $dashboardController;
@@ -42,50 +29,62 @@ class Router
 
     private SessionService $sessionService;
 
-    private Environment $twig;
+    private Config $config;
+
+    private Environment $environment;
+
+    private RouteList $routes;
 
     public function __construct(
         DashboardController $dashboardController,
         UserController $userController,
         PageController $pageController,
         PublicController $publicController,
-        SessionService $sessionService
+        SessionService $sessionService,
+        Config $config,
+        Environment $environment,
+        RouteList $routes
     ) {
         $this->publicController    = $publicController;
         $this->dashboardController = $dashboardController;
         $this->userController      = $userController;
         $this->pageController      = $pageController;
         $this->sessionService      = $sessionService;
+        $this->config              = $config;
+        $this->environment         = $environment;
+        $this->routes              = $routes;
     }
 
     public function route(Request $request): ResponseInterface
     {
-        $uri = $request->getUri();
+        $route = $this->routes->findByPath($request->getUri()->getPath());
 
         try {
-            if (key_exists($uri, self::ROUTING_TABLE) === false) {
+            if ($route === null) {
                 return $this->publicController->page($request);
             }
 
-            $route             = self::ROUTING_TABLE[$uri];
-            $controller        = $route[0];
-            $method            = $route[1];
-            $allowedHttpMethods = $route[2];
-
-            if(in_array($request->getMethod(), $allowedHttpMethods) === false) {
+            if ($route->getAllowedRequestMethods()->contains($request->getMethod()) === false) {
                 throw new MethodNotAllowedException();
             }
 
+            $controller = $route->getController();
+            $method     = $route->getMethod();
+
             return $this->$controller->$method($request);
         } catch (AuthenticationExceptionInterface $e) {
-            $this->sessionService->addFlash(
-                new FlashMessage($e->getMessage(), FlashMessage::ALERT_LEVEL_ERROR)
-            );
-            return new RedirectResponse('/admin/login');
-        } catch (\Throwable $t) {
-            var_dump($t->getMessage());
+            $this->sessionService->addFlash(FlashMessage::createFromParameters($e->getMessage(), FlashMessage::ALERT_LEVEL_ERROR));
 
-            return new RedirectResponse('/error', $t->getCode());
+            return new RedirectResponse(Uri::createFromString('/admin/login'));
+        } catch (\Throwable $t) {
+            if ($this->config->getByKey('environment') === 'DEV') {
+                return new Response($this->environment->render(
+                    'debug.html.twig',
+                    ['message' => $t->getMessage(), 'trace' => $t->getTraceAsString()],
+                ), $t->getCode());
+            }
+
+            return new RedirectResponse(Uri::createFromString('/error'), $t->getCode());
         }
     }
 }

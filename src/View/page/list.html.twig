@@ -1,4 +1,4 @@
-{% extends 'adminLayout.html.twig' %}
+{% extends 'layout.html.twig' %}
 
 {% block title %}
     Pages
@@ -17,9 +17,9 @@
 
         {% for page in pages %}
             <tr>
-                <td><a href="{{ page.uri }}">{{ page.uri }}</a></td>
-                <td>{{ page.title }}</td>
-                <td>
+                <td class="align-middle"><a href="{{ page.uri }}">{{ page.uri }}</a></td>
+                <td class="align-middle">{{ page.title }}</td>
+                <td class="align-middle">
                     <a href="/admin/page/edit?id={{ page.id }}" class="btn btn-primary">Edit</a>
                     <a href="/admin/page/delete?id={{ page.id }}" class="btn btn-danger">Delete</a>
                 </td>

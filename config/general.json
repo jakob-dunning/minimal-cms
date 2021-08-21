@@ -1,4 +1,5 @@
 {
   "dsn": "mysql:host=db;port=3306;dbname=minimalCMS;user=root;password=root",
-  "sessionExpirationTime": 15
+  "sessionExpirationTime": 15,
+  "environment": "DEV"
 }

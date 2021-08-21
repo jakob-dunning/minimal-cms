@@ -1,17 +1,30 @@
 <?php
 
-namespace Test;
+namespace Test\Service;
 
-use App\Exception\ExpiredSessionException;
-use App\Exception\UnknownUserException;
-use App\Model\Request;
 use App\Entity\User\User;
+use App\Exception\ExpiredSessionException;
+use App\Exception\NotAuthenticatedException;
+use App\Exception\UserNotFoundException;
+use App\Model\Request;
+use App\Model\Response\Response;
 use App\Repository\UserRepository;
 use App\Service\AuthenticationService;
 use App\Service\Config;
 use App\Service\DateTimeService;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @covers  \App\Service\AuthenticationService
+ * @uses    \App\Entity\User\User
+ * @uses    \App\Model\Request
+ * @uses    \App\Repository\UserRepository
+ * @uses    \App\Service\DateTimeService
+ * @uses    \App\Exception\AuthenticationExceptionInterface
+ * @uses    \App\Exception\ExpiredSessionException
+ * @uses    \App\Exception\NotAuthenticatedException
+ * @uses    \App\Service\Config
+ */
 class AuthenticationServiceTest extends TestCase
 {
     private $authenticationService;
@@ -38,22 +51,22 @@ class AuthenticationServiceTest extends TestCase
         $this->authenticationService = new AuthenticationService($this->configMock, $this->userRepositoryMock, $this->dateTimeServiceMock);
     }
 
-    public function testAuthenticateUserThrowsUnknownUserException()
+    public function testAuthenticateUserThrowsNotAuthenticatedException()
     {
         $sessionId = 'hjsdfkglsdgflisdhfui34563456';
 
         $this->userRepositoryMock->expects($this->once())
                                  ->method('findBySessionId')
                                  ->with($sessionId)
-                                 ->willReturn(null);
+                                 ->willThrowException(new UserNotFoundException());
 
         $this->requestMock->expects($this->once())
                           ->method('getSessionId')
                           ->willReturn($sessionId);
 
-        $this->expectException(UnknownUserException::class);
-        $this->expectExceptionMessage(UnknownUserException::MESSAGE);
-        $this->expectExceptionCode(401);
+        $this->expectException(NotAuthenticatedException::class);
+        $this->expectExceptionMessage(NotAuthenticatedException::MESSAGE);
+        $this->expectExceptionCode(Response::STATUS_UNAUTHORIZED);
 
         $this->authenticationService->authenticateUser($this->requestMock);
     }
@@ -81,7 +94,7 @@ class AuthenticationServiceTest extends TestCase
 
         $this->expectException(ExpiredSessionException::class);
         $this->expectExceptionMessage(ExpiredSessionException::MESSAGE);
-        $this->expectExceptionCode(401);
+        $this->expectExceptionCode(Response::STATUS_UNAUTHORIZED);
 
         $this->authenticationService->authenticateUser($this->requestMock);
     }

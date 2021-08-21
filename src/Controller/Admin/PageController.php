@@ -11,6 +11,7 @@ use App\Repository\UserRepository;
 use App\Service\AuthenticationService;
 use App\Service\SessionService;
 use App\ValueObject\FlashMessage;
+use App\ValueObject\Uri;
 use Twig\Environment;
 
 class PageController
@@ -39,7 +40,7 @@ class PageController
         $this->sessionService        = $sessionService;
     }
 
-    public function list(Request $request) : ResponseInterface
+    public function list(Request $request): ResponseInterface
     {
         $this->authenticationService->authenticateUser($request);
 
@@ -62,15 +63,15 @@ class PageController
             $this->pageRepository->create($post['uri'], $post['title'], $post['content']);
         } catch (\Throwable $t) {
             $this->sessionService->addFlash(
-                new FlashMessage($t->getMessage(), FlashMessage::ALERT_LEVEL_ERROR)
+                FlashMessage::createFromParameters($t->getMessage(), FlashMessage::ALERT_LEVEL_ERROR)
             );
 
-            return new RedirectResponse('/admin/page/create');
+            return new RedirectResponse(Uri::createFromString('/admin/page/create'));
         }
 
-        $this->sessionService->addFlash(new FlashMessage('Page added successfully', FlashMessage::ALERT_LEVEL_SUCCESS));
+        $this->sessionService->addFlash(FlashMessage::createFromParameters('Page added successfully', FlashMessage::ALERT_LEVEL_SUCCESS));
 
-        return new RedirectResponse('/admin/page');
+        return new RedirectResponse(Uri::createFromString('/admin/page'));
     }
 
     public function edit(Request $request): ResponseInterface
@@ -81,19 +82,17 @@ class PageController
         $page = $this->pageRepository->findById($get['id']);
 
         if ($request->getMethod() === Request::METHOD_GET) {
-            return new Response(
-                $this->twig->render('page/single.html.twig', ['title' => 'Edit page', 'page' => $page])
-            );
+            return new Response($this->twig->render('page/single.html.twig', ['title' => 'Edit page', 'page' => $page, 'formTarget'=> "/admin/page/edit?id={$page->getId()}"]));
         }
 
         $pageData = $request->post();
         $page->setContent($pageData['content'])
              ->setTitle($pageData['title'])
-             ->setUri($pageData['uri']);
+             ->setUri(Uri::createFromString($pageData['uri']));
         $this->pageRepository->persist($page);
-        $this->sessionService->addFlash(new FlashMessage('Page edited successfully', FlashMessage::ALERT_LEVEL_SUCCESS));
+        $this->sessionService->addFlash(FlashMessage::createFromParameters('Page edited successfully', FlashMessage::ALERT_LEVEL_SUCCESS));
 
-        return new RedirectResponse('/admin/page');
+        return new RedirectResponse(Uri::createFromString('/admin/page'));
     }
 
     public function delete(Request $request): ResponseInterface
@@ -102,8 +101,8 @@ class PageController
 
         $get = $request->get();
         $this->pageRepository->deleteById($get['id']);
-        $this->sessionService->addFlash(new FlashMessage('Page deleted successfully', FlashMessage::ALERT_LEVEL_SUCCESS));
+        $this->sessionService->addFlash(FlashMessage::createFromParameters('Page deleted successfully', FlashMessage::ALERT_LEVEL_SUCCESS));
 
-        return new RedirectResponse('/admin/page');
+        return new RedirectResponse(Uri::createFromString('/admin/page'));
     }
 }

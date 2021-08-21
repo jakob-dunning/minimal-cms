@@ -6,16 +6,19 @@ class Config
 {
     private array $items;
 
-    public function __construct(string $path)
+    private function __construct(array $items)
     {
-        $json = file_get_contents($path);
+        $this->items = $items;
+    }
 
-        $this->items = json_decode($json, true);
+    public static function createFromArray(array $items) : self
+    {
+        return new self($items);
     }
 
     public function getByKey(string $key)
     {
-        if(key_exists($key, $this->items) === false) {
+        if (key_exists($key, $this->items) === false) {
             throw new \Exception('Config not found: ' . $key);
         }
 

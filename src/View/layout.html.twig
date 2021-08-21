@@ -30,6 +30,7 @@
     {% block menu %}
         <ul class='nav nav-tabs mt-5 mb-4'>
 
+            {% set menu = (user != null) ? adminMenu : userMenu %}
             {% for item in menu %}
                 <li class='nav-item'>
                     <a class='nav-link {% if request.uri == item.target %}active{% endif %}'

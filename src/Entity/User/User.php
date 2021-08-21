@@ -2,6 +2,9 @@
 
 namespace App\Entity\User;
 
+/**
+ * @codeCoverageIgnore
+ */
 class User implements UserInterface
 {
     private string    $username;
@@ -14,7 +17,7 @@ class User implements UserInterface
 
     private int        $id;
 
-    public function __construct(int $id, string $username, string $password, ?string $sessionId, ?\DateTime $sessionExpiresAt)
+    private function __construct(int $id, string $username, string $password, ?string $sessionId, ?\DateTime $sessionExpiresAt)
     {
         $this->username         = $username;
         $this->sessionId        = $sessionId;
@@ -30,7 +33,10 @@ class User implements UserInterface
             $userData['username'],
             $userData['password'],
             $userData['session_id'],
-            $userData['session_expires_at']
+            ($userData['session_expires_at'] === null)
+                ? null
+                : new \DateTime($userData['session_expires_at'])
+
         );
     }
 

@@ -2,6 +2,9 @@
 
 namespace App\Service;
 
+/**
+ * @codeCoverageIgnore
+ */
 class DateTimeService
 {
     public function now() : \DateTime {

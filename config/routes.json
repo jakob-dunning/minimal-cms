@@ -1,0 +1,111 @@
+[
+  {
+    "uri": "/admin/login",
+    "controller": "dashboardController",
+    "method": "login",
+    "allowedRequestMethods": [
+      "GET",
+      "POST"
+    ]
+  },
+  {
+    "uri": "/admin/logout",
+    "controller": "dashboardController",
+    "method": "logout",
+    "allowedRequestMethods": [
+      "GET"
+    ]
+  },
+  {
+    "uri": "/admin/dashboard",
+    "controller": "dashboardController",
+    "method": "dashboard",
+    "allowedRequestMethods": [
+      "GET"
+    ]
+  },
+  {
+    "uri": "/admin/user",
+    "controller": "userController",
+    "method": "list",
+    "allowedRequestMethods": [
+      "GET"
+    ]
+  },
+  {
+    "uri": "/admin/user/create",
+    "controller": "userController",
+    "method": "create",
+    "allowedRequestMethods": [
+      "GET",
+      "POST"
+    ]
+  },
+  {
+    "uri": "/admin/user/edit",
+    "controller": "userController",
+    "method": "edit",
+    "allowedRequestMethods": [
+      "GET",
+      "POST"
+    ]
+  },
+  {
+    "uri": "/admin/user/delete",
+    "controller": "userController",
+    "method": "delete",
+    "allowedRequestMethods": [
+      "GET"
+    ]
+  },
+  {
+    "uri": "/admin/page",
+    "controller": "pageController",
+    "method": "list",
+    "allowedRequestMethods": [
+      "GET"
+    ]
+  },
+  {
+    "uri": "/admin/page/create",
+    "controller": "pageController",
+    "method": "create",
+    "allowedRequestMethods": [
+      "GET",
+      "POST"
+    ]
+  },
+  {
+    "uri": "/admin/page/edit",
+    "controller": "pageController",
+    "method": "edit",
+    "allowedRequestMethods": [
+      "GET",
+      "POST"
+    ]
+  },
+  {
+    "uri": "/admin/page/delete",
+    "controller": "pageController",
+    "method": "delete",
+    "allowedRequestMethods": [
+      "GET"
+    ]
+  },
+  {
+    "uri": "/error",
+    "controller": "publicController",
+    "method": "error",
+    "allowedRequestMethods": [
+      "GET"
+    ]
+  },
+  {
+    "uri": "/",
+    "controller": "publicController",
+    "method": "home",
+    "allowedRequestMethods": [
+      "GET"
+    ]
+  }
+]

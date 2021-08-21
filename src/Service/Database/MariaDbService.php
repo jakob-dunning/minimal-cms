@@ -16,11 +16,7 @@ class MariaDbService implements RelationalDatabaseInterface
     public function select(array $fields, string $table, array $conditions = []): array
     {
         $fieldsSql     = implode(',', $fields);
-        $conditionsSql = (count($conditions) > 0) ? 'WHERE ' : '';
-
-        foreach (array_keys($conditions) as $field) {
-            $conditionsSql .= ($conditionsSql === 'WHERE ') ? "{$field} = ?" : " AND WHERE {$field} = ?";
-        }
+        $conditionsSql = $this->buildConditionsSQL($conditions);
 
         $statement = $this->pdo->prepare("SELECT {$fieldsSql} FROM {$table} {$conditionsSql}");
         $statement->execute(array_values($conditions));
@@ -45,13 +41,7 @@ class MariaDbService implements RelationalDatabaseInterface
             $fieldsSql .= ($key === array_key_last($fields)) ? "{$key} = ?" : "{$key} = ?,";
         }
 
-        $conditionsSql = (count($conditions) > 0) ? 'WHERE ' : '';
-
-        foreach (array_keys($conditions) as $field) {
-            $conditionsSql .= ($conditionsSql === 'WHERE ')
-                ? "{$field} = ?"
-                : " AND WHERE {$field} = ?";
-        }
+        $conditionsSql = $this->buildConditionsSQL($conditions);
 
         $statement = $this->pdo->prepare("UPDATE {$table} SET {$fieldsSql} {$conditionsSql}");
         $statement->execute(array_merge(array_values($fields), array_values($conditions)));
@@ -59,7 +49,19 @@ class MariaDbService implements RelationalDatabaseInterface
 
     public function delete(string $table, array $conditions): void
     {
-        $conditionsSql = (count($conditions) > 0) ? 'WHERE ' : '';
+        $conditionsSql = $this->buildConditionsSQL($conditions);
+
+        $statement = $this->pdo->prepare("DELETE FROM {$table} {$conditionsSql}");
+        $statement->execute(array_values($conditions));
+    }
+
+    private function buildConditionsSQL(array $conditions): string
+    {
+        if(count($conditions) === 0) {
+            return '';
+        }
+
+        $conditionsSql =  'WHERE ';
 
         foreach (array_keys($conditions) as $field) {
             $conditionsSql .= ($conditionsSql === 'WHERE ')
@@ -67,7 +69,6 @@ class MariaDbService implements RelationalDatabaseInterface
                 : " AND WHERE {$field} = ?";
         }
 
-        $statement = $this->pdo->prepare("DELETE FROM {$table} {$conditionsSql}");
-        $statement->execute(array_values($conditions));
+        return $conditionsSql;
     }
 }

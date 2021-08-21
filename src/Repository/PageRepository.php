@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Page;
+use App\Exception\PageNotFoundException;
 use App\Service\Database\RelationalDatabaseInterface;
 
 class PageRepository
@@ -14,12 +15,12 @@ class PageRepository
         $this->database = $database;
     }
 
-    public function findByUri(string $uri): Page
+    public function findByPath(string $path): Page
     {
-        $data = $this->database->select(['*'], 'page', ['uri' => $uri]);
+        $data = $this->database->select(['*'], 'page', ['uri' => $path]);
 
         if (count($data) === 0) {
-            throw new \Exception('Page not found for route: ' . $uri);
+            throw new PageNotFoundException("Page not found for path: {$path}");
         }
 
         $pageData = reset($data);
@@ -47,6 +48,11 @@ class PageRepository
     public function findById(int $id): Page
     {
         $data     = $this->database->select(['*'], 'page', ['id' => $id]);
+
+        if(count($data) === 0) {
+            throw new PageNotFoundException("Page not found for id: {$id}");
+        }
+
         $pageData = reset($data);
 
         return Page::createFromArray($pageData);
@@ -56,12 +62,12 @@ class PageRepository
     {
         $this->database->update(
             'page',
-            ['uri' => $page->getUri(), 'title' => $page->getTitle(), 'content' => $page->getContent()],
+            ['uri' => $page->getUri()->__toString(), 'title' => $page->getTitle(), 'content' => $page->getContent()],
             ['id' => $page->getId()]
         );
     }
 
-    public function deleteById(int $id)
+    public function deleteById(int $id) : void
     {
         $this->database->delete(
             'page',

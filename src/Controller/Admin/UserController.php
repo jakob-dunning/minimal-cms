@@ -10,6 +10,7 @@ use App\Repository\UserRepository;
 use App\Service\AuthenticationService;
 use App\Service\SessionService;
 use App\ValueObject\FlashMessage;
+use App\ValueObject\Uri;
 use Twig\Environment;
 
 class UserController
@@ -39,25 +40,21 @@ class UserController
         $this->authenticationService->authenticateUser($request);
 
         if ($request->getMethod() === Request::METHOD_GET) {
-            return new Response($this->twig->render('user/single.html.twig'));
+            return new Response($this->twig->render('user/single.html.twig', ['title' => 'Add User']));
         }
 
         $post = $request->post();
 
         if ($post['password'] === '') {
-            $this->sessionService->addFlash(
-                new FlashMessage('Password cannot be empty', FlashMessage::ALERT_LEVEL_ERROR)
-            );
+            $this->sessionService->addFlash(FlashMessage::createFromParameters('Password cannot be empty', FlashMessage::ALERT_LEVEL_ERROR));
 
-            return new RedirectResponse('/admin/user/create');
+            return new RedirectResponse(Uri::createFromString('/admin/user/create'));
         }
 
         if ($post['password'] !== $post['repeat-password']) {
-            $this->sessionService->addFlash(
-                new FlashMessage('Passwords do not match', FlashMessage::ALERT_LEVEL_ERROR)
-            );
+            $this->sessionService->addFlash(FlashMessage::createFromParameters('Passwords do not match', FlashMessage::ALERT_LEVEL_ERROR));
 
-            return new RedirectResponse('/admin/user/create');
+            return new RedirectResponse(Uri::createFromString('/admin/user/create'));
         }
 
         $password = password_hash($post['password'], PASSWORD_DEFAULT);
@@ -65,18 +62,14 @@ class UserController
         try {
             $this->userRepository->create($post['user'], $password);
         } catch (\Throwable $t) {
-            $this->sessionService->addFlash(
-                new FlashMessage($t->getMessage(), FlashMessage::ALERT_LEVEL_ERROR)
-            );
+            $this->sessionService->addFlash(FlashMessage::createFromParameters($t->getMessage(), FlashMessage::ALERT_LEVEL_ERROR));
 
-            return new RedirectResponse('/admin/user/create');
+            return new RedirectResponse(Uri::createFromString('/admin/user/create'));
         }
 
-        $this->sessionService->addFlash(
-            new FlashMessage('User created successfully', FlashMessage::ALERT_LEVEL_SUCCESS)
-        );
+        $this->sessionService->addFlash(FlashMessage::createFromParameters('User created successfully', FlashMessage::ALERT_LEVEL_SUCCESS));
 
-        return new RedirectResponse('/admin/user');
+        return new RedirectResponse(Uri::createFromString('/admin/user'));
     }
 
     public function list(Request $request): ResponseInterface
@@ -94,40 +87,34 @@ class UserController
     {
         $this->authenticationService->authenticateUser($request);
 
-        $get  = $request->get();
+        $get = $request->get();
         $user = $this->userRepository->findById($get['id']);
 
         if ($request->getMethod() === Request::METHOD_GET) {
             return new Response(
-                $this->twig->render('user/single.html.twig', ['title' => 'Edit user', 'user' => $user])
+                $this->twig->render('user/single.html.twig', ['title' => 'Edit user', 'user' => $user, 'formTarget'=> "/admin/user/edit?id={$user->getId()}"])
             );
         }
 
         $post = $request->post();
 
         if ($post['password'] === '') {
-            $this->sessionService->addFlash(
-                new FlashMessage('Password cannot be empty', FlashMessage::ALERT_LEVEL_ERROR)
-            );
+            $this->sessionService->addFlash(FlashMessage::createFromParameters('Password cannot be empty', FlashMessage::ALERT_LEVEL_ERROR));
 
-            return new RedirectResponse('/admin/user/edit');
+            return new RedirectResponse(Uri::createFromString("/admin/user/edit?id={$user->getId()}"));
         }
 
         if ($post['password'] !== $post['repeat-password']) {
-            $this->sessionService->addFlash(
-                new FlashMessage('Passwords do not match', FlashMessage::ALERT_LEVEL_ERROR)
-            );
+            $this->sessionService->addFlash(FlashMessage::createFromParameters('Passwords do not match', FlashMessage::ALERT_LEVEL_ERROR));
 
-            return new RedirectResponse('/admin/user/edit');
+            return new RedirectResponse(Uri::createFromString("/admin/user/edit?id={$user->getId()}"));
         }
 
         $user->setPassword(password_hash($post['password'], PASSWORD_DEFAULT));
         $this->userRepository->persist($user);
-        $this->sessionService->addFlash(
-            new FlashMessage('New password saved successfully', FlashMessage::ALERT_LEVEL_SUCCESS)
-        );
+        $this->sessionService->addFlash(FlashMessage::createFromParameters('New password saved successfully', FlashMessage::ALERT_LEVEL_SUCCESS));
 
-        return new RedirectResponse('/admin/user');
+        return new RedirectResponse(Uri::createFromString('/admin/user'));
     }
 
     public function delete(Request $request): ResponseInterface
@@ -136,8 +123,8 @@ class UserController
 
         $get = $request->get();
         $this->userRepository->deleteById($get['id']);
-        $this->sessionService->addFlash(new FlashMessage('User deleted successfully', FlashMessage::ALERT_LEVEL_SUCCESS));
+        $this->sessionService->addFlash(FlashMessage::createFromParameters('User deleted successfully', FlashMessage::ALERT_LEVEL_SUCCESS));
 
-        return new RedirectResponse('/admin/user');
+        return new RedirectResponse(Uri::createFromString('/admin/user'));
     }
 }

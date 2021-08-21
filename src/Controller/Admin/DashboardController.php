@@ -3,7 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Exception\AuthenticationExceptionInterface;
-use App\Exception\UnknownUserException;
+use App\Exception\NotAuthenticatedException;
+use App\Exception\UserNotFoundException;
 use App\Model\Request;
 use App\Model\Response\RedirectResponse;
 use App\Model\Response\Response;
@@ -13,6 +14,7 @@ use App\Repository\UserRepository;
 use App\Service\AuthenticationService;
 use App\Service\Config;
 use App\Service\SessionService;
+use App\ValueObject\Uri;
 use Twig\Environment;
 
 class DashboardController
@@ -21,6 +23,7 @@ class DashboardController
         ['label' => 'Dashboard', 'target' => '/admin/dashboard'],
         ['label' => 'Users', 'target' => '/admin/user'],
         ['label' => 'Pages', 'target' => '/admin/page'],
+        ['label' => 'Logout', 'target' => '/admin/logout'],
     ];
 
     private Config $config;
@@ -60,17 +63,17 @@ class DashboardController
                 return new Response($this->twig->render('login.html.twig'));
             }
 
-            return new RedirectResponse('/admin/dashboard');
+            return new RedirectResponse(Uri::createFromString('/admin/dashboard'));
         }
 
-        $user = $this->userRepository->findByUsername($request->post()['user'] ?? '');
-
-        if ($user === null) {
-            throw new UnknownUserException();
+        try {
+            $user = $this->userRepository->findByUsername($request->post()['user'] ?? '');
+        } catch (UserNotFoundException $e) {
+            throw new NotAuthenticatedException();
         }
 
         if (password_verify($request->post()['password'], $user->getPassword()) === false) {
-            throw new UnknownUserException();
+            throw new NotAuthenticatedException();
         }
 
         $user->setSessionId($request->getSessionId());
@@ -78,7 +81,7 @@ class DashboardController
 
         $this->userRepository->persist($user);
 
-        return new RedirectResponse('/admin/dashboard');
+        return new RedirectResponse(Uri::createFromString('/admin/dashboard'));
     }
 
     public function logout(Request $request): ResponseInterface
@@ -91,7 +94,7 @@ class DashboardController
 
         $this->userRepository->persist($user);
 
-        return new RedirectResponse('/admin/login');
+        return new RedirectResponse(Uri::createFromString('/admin/login'));
     }
 
     public function dashboard(Request $request): ResponseInterface
@@ -101,8 +104,6 @@ class DashboardController
         $users = $this->userRepository->findAll();
         $pages = $this->pageRepository->findAll();
 
-        return new Response(
-            $this->twig->render('dashboard.html.twig', ['users' => $users, 'pages' => $pages]),
-        );
+        return new Response($this->twig->render('dashboard.html.twig', ['users' => $users, 'pages' => $pages]),);
     }
 }

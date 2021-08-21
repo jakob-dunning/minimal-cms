@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Entity\User\User;
 use App\Entity\User\UserInterface;
+use App\Exception\NotAuthenticatedException;
+use App\Exception\UserNotFoundException;
 use App\Service\Database\RelationalDatabaseInterface;
 
 class UserRepository
@@ -20,25 +22,23 @@ class UserRepository
         $data = $this->database->select(['*'], 'user', ['session_id' => $sessionId]);
 
         if (count($data) === 0) {
-            return null;
+            throw new UserNotFoundException();
         }
 
         $userData = reset($data);
-        $userData['session_expires_at'] = new \DateTime($userData['session_expires_at']);
 
         return User::createFromArray($userData);
     }
 
-    public function findByUsername(string $username): ?UserInterface
+    public function findByUsername(string $username): UserInterface
     {
         $data = $this->database->select(['*'], 'user', ['username' => $username]);
 
         if (count($data) === 0) {
-            return null;
+            throw new UserNotFoundException();
         }
 
         $userData = reset($data);
-        $userData['session_expires_at'] = new \DateTime($userData['session_expires_at']);
 
         return User::createFromArray($userData);
     }
@@ -67,26 +67,24 @@ class UserRepository
     {
         $data = $this->database->select(['*'], 'user');
 
-        if ($data === false) {
-            return [];
-        }
-
         $users = [];
 
         foreach ($data as $userData) {
-            $userData['session_expires_at'] = new \DateTime($userData['session_expires_at']);
-
             $users[] = User::createFromArray($userData);
         }
 
         return $users;
     }
 
-    public function findById(int $id): UserInterface
+    public function findById(int $id): ?UserInterface
     {
-        $data     = $this->database->select(['*'], 'user', ['id' => $id]);
+        $data = $this->database->select(['*'], 'user', ['id' => $id]);
+
+        if (count($data) === 0) {
+            throw new UserNotFoundException();
+        }
+
         $userData = reset($data);
-        $userData['session_expires_at'] = new \DateTime($userData['session_expires_at']);
 
         return User::createFromArray($userData);
     }

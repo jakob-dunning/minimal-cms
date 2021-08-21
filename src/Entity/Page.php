@@ -2,17 +2,22 @@
 
 namespace App\Entity;
 
+use App\ValueObject\Uri;
+
+/**
+ * @codeCoverageIgnore
+ */
 class Page
 {
-    private string $uri;
+    private Uri $uri;
 
     private string $content;
 
     private string $title;
 
-    private int    $id;
+    private int $id;
 
-    public function __construct(int $id, string $uri, string $title, string $content)
+    private function __construct(int $id, Uri $uri, string $title, string $content)
     {
         $this->uri     = $uri;
         $this->content = $content;
@@ -22,10 +27,10 @@ class Page
 
     public static function createFromArray($pageData): self
     {
-        return new self($pageData['id'], $pageData['uri'], $pageData['title'], $pageData['content']);
+        return new self($pageData['id'], Uri::createFromString($pageData['uri']), $pageData['title'], $pageData['content']);
     }
 
-    public function getUri(): string
+    public function getUri(): Uri
     {
         return $this->uri;
     }
@@ -45,21 +50,21 @@ class Page
         return $this->id;
     }
 
-    public function setContent(string $content) : self
+    public function setContent(string $content): self
     {
         $this->content = $content;
 
         return $this;
     }
 
-    public function setTitle(string $title) : self
+    public function setTitle(string $title): self
     {
         $this->title = $title;
 
         return $this;
     }
 
-    public function setUri(string $uri) : self
+    public function setUri(Uri $uri): self
     {
         $this->uri = $uri;
 
