@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\Response;
+namespace App\Service\Response;
 
 class Response implements ResponseInterface
 {
@@ -14,10 +14,13 @@ class Response implements ResponseInterface
 
     private array $headers = [];
 
+    private int $statusCode;
+
     public function __construct(string $content, int $statusCode = self::STATUS_OK)
     {
-        $this->content   = $content;
-        $this->headers[] = 'http/1.1 ' . $statusCode;
+        $this->content    = $content;
+        $this->headers[]  = 'http/1.1 ' . $statusCode;
+        $this->statusCode = $statusCode;
     }
 
     public function getHeaders(): array
@@ -28,5 +31,10 @@ class Response implements ResponseInterface
     public function getBody(): string
     {
         return $this->content;
+    }
+
+    public function getStatusCode(): int
+    {
+        return $this->statusCode;
     }
 }

@@ -7,6 +7,7 @@ use App\Entity\User\UserInterface;
 use App\Exception\NotAuthenticatedException;
 use App\Exception\UserNotFoundException;
 use App\Service\Database\RelationalDatabaseInterface;
+use App\Service\DateTimeService;
 
 class UserRepository
 {
@@ -47,7 +48,7 @@ class UserRepository
     {
         $sessionExpiresAt = ($user->getSessionExpiresAt() === null)
             ? null
-            : $user->getSessionExpiresAt()->format('Y-m-d H:i:s');
+            : $user->getSessionExpiresAt()->format(DateTimeService::FORMAT_SQL);
 
         $fields = ['session_id' => $user->getSessionId(), 'session_expires_at' => $sessionExpiresAt, 'password' => $user->getPassword()];
 

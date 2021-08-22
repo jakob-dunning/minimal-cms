@@ -5,21 +5,23 @@ namespace App\Controller\Admin;
 use App\Exception\AuthenticationExceptionInterface;
 use App\Exception\NotAuthenticatedException;
 use App\Exception\UserNotFoundException;
-use App\Model\Request;
-use App\Model\Response\RedirectResponse;
-use App\Model\Response\Response;
-use App\Model\Response\ResponseInterface;
 use App\Repository\PageRepository;
 use App\Repository\UserRepository;
 use App\Service\AuthenticationService;
 use App\Service\Config;
+use App\Service\Request;
+use App\Service\Response\RedirectResponse;
+use App\Service\Response\Response;
+use App\Service\Response\ResponseInterface;
 use App\Service\SessionService;
 use App\ValueObject\Uri;
 use Twig\Environment;
+use function var_dump;
 
 class DashboardController
 {
     public const ADMIN_MENU = [
+        ['label' => 'Home', 'target' => '/'],
         ['label' => 'Dashboard', 'target' => '/admin/dashboard'],
         ['label' => 'Users', 'target' => '/admin/user'],
         ['label' => 'Pages', 'target' => '/admin/page'],
@@ -72,13 +74,12 @@ class DashboardController
             throw new NotAuthenticatedException();
         }
 
-        if (password_verify($request->post()['password'], $user->getPassword()) === false) {
+        if ($this->authenticationService->verifyPassword($request->post()['password'], $user->getPassword()) === false) {
             throw new NotAuthenticatedException();
         }
 
         $user->setSessionId($request->getSessionId());
         $this->authenticationService->renewSession($user);
-
         $this->userRepository->persist($user);
 
         return new RedirectResponse(Uri::createFromString('/admin/dashboard'));
@@ -90,9 +91,8 @@ class DashboardController
 
         $user->setSessionExpiresAt(null);
         $user->setSessionId(null);
-        session_destroy();
-
         $this->userRepository->persist($user);
+        $this->sessionService->destroy();
 
         return new RedirectResponse(Uri::createFromString('/admin/login'));
     }

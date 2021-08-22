@@ -2,7 +2,7 @@
 
 namespace App\ValueObject;
 
-use App\Model\Request;
+use App\Service\Request;
 
 class RequestMethodList
 {

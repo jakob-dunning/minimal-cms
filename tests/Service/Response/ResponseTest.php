@@ -1,11 +1,13 @@
 <?php
 
-use App\Model\Response\Response;
+use App\Service\Response\Response;
+use App\ValueObject\Uri;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \App\Model\Response\Response
- * @uses   \App\Model\Response\ResponseInterface
+ * @covers \App\Service\Response\Response
+ * @uses   \App\Service\Response\ResponseInterface
+ * @uses   \App\ValueObject\Uri
  */
 class ResponseTest extends TestCase
 {
@@ -32,5 +34,12 @@ class ResponseTest extends TestCase
         $response = new Response($content);
 
         $this->assertSame($content, $response->getBody());
+    }
+
+    public function testReturnsStatusCode() {
+        $statusCode = 301;
+        $response = new Response(Uri::createFromString('/'), $statusCode);
+
+        $this->assertSame($statusCode, $response->getStatusCode());
     }
 }

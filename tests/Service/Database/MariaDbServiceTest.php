@@ -55,6 +55,30 @@ class MariaDbServiceTest extends TestCase
         $this->assertSame($expected, $actual);
     }
 
+    public function testSelectWithoutConditions()
+    {
+        $fields       = ['hals', 'nase', 'ohr'];
+        $fieldsString = implode(',', $fields);
+        $table        = 'gurke';
+        $expected     = ['Hans', 'Wurst', 'Keks'];
+
+        $this->pdoStatementMock->expects($this->once())
+                               ->method('execute')
+                               ->with(new IsEmpty());
+        $this->pdoStatementMock->expects($this->once())
+                               ->method('fetchAll')
+                               ->with(new IsEmpty())
+                               ->willReturn($expected);
+
+        $this->pdoMock->expects($this->once())
+                      ->method('prepare')
+                      ->with("SELECT {$fieldsString} FROM {$table} ")
+                      ->willReturn($this->pdoStatementMock);
+
+        $actual = $this->mariaDbService->select($fields, $table);
+        $this->assertSame($expected, $actual);
+    }
+
     public function testInsert()
     {
         $table             = 'hasen';

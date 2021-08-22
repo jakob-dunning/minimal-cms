@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\Response;
+namespace App\Service\Response;
 
 use App\ValueObject\Uri;
 
@@ -10,9 +10,13 @@ class RedirectResponse implements ResponseInterface
 
     private array $headers;
 
+    private int $statusCode;
+
     public function __construct(Uri $target, int $statusCode = self::STATUS_TEMPORARY)
     {
         $this->headers = ["http/1.1 {$statusCode}", "Location: {$target}"];
+        $this->statusCode = $statusCode;
+
     }
 
     public function getHeaders(): array
@@ -23,5 +27,10 @@ class RedirectResponse implements ResponseInterface
     public function getBody(): string
     {
         return '';
+    }
+
+    public function getStatusCode(): int
+    {
+        return $this->statusCode;
     }
 }

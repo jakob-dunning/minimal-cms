@@ -6,8 +6,7 @@ use App\Controller\Admin\DashboardController;
 use App\Controller\Admin\PageController;
 use App\Controller\Admin\UserController;
 use App\Controller\PublicController;
-use App\Exception\NotAuthenticatedException;
-use App\Model\Request;
+use App\Exception\AuthenticationExceptionInterface;
 use App\Repository\PageRepository;
 use App\Repository\UserRepository;
 use App\Service\Database\MariaDbService;
@@ -69,7 +68,7 @@ class Factory
     {
         try {
             $user = $this->createAuthenticationService()->authenticateUser($this->request);
-        } catch (NotAuthenticatedException $e) {
+        } catch (AuthenticationExceptionInterface $e) {
             $user = null;
         }
 

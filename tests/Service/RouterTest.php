@@ -7,9 +7,9 @@ use App\Controller\Admin\PageController;
 use App\Controller\Admin\UserController;
 use App\Controller\PublicController;
 use App\Exception\NotAuthenticatedException;
-use App\Model\Request;
-use App\Model\Response\RedirectResponse;
-use App\Model\Response\Response;
+use App\Service\Request;
+use App\Service\Response\RedirectResponse;
+use App\Service\Response\Response;
 use App\Service\Config;
 use App\Service\Router;
 use App\Service\SessionService;
@@ -34,12 +34,12 @@ use Twig\Environment;
  * @uses   \App\ValueObject\RequestMethodList
  * @uses   \App\ValueObject\Route
  * @uses   \App\ValueObject\Uri
- * @uses   \App\Model\Request
- * @uses   \App\Model\Response\Response
+ * @uses   \App\Service\Request
+ * @uses   \App\Service\Response\Response
  * @uses   \App\Service\Config
- * @uses   \App\Model\Response\RedirectResponse
+ * @uses   \App\Service\Response\RedirectResponse
  * @uses   \App\Exception\MethodNotAllowedException
- * @uses   \App\Model\Response\ResponseInterface
+ * @uses   \App\Service\Response\ResponseInterface
  * @uses   \App\Exception\NotAuthenticatedException
  * @uses   \App\ValueObject\FlashMessage
  * @uses   \App\Exception\AuthenticationExceptionInterface

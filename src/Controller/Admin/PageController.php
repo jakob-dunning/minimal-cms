@@ -2,13 +2,13 @@
 
 namespace App\Controller\Admin;
 
-use App\Model\Request;
-use App\Model\Response\RedirectResponse;
-use App\Model\Response\Response;
-use App\Model\Response\ResponseInterface;
 use App\Repository\PageRepository;
 use App\Repository\UserRepository;
 use App\Service\AuthenticationService;
+use App\Service\Request;
+use App\Service\Response\RedirectResponse;
+use App\Service\Response\Response;
+use App\Service\Response\ResponseInterface;
 use App\Service\SessionService;
 use App\ValueObject\FlashMessage;
 use App\ValueObject\Uri;
@@ -28,13 +28,11 @@ class PageController
 
     public function __construct(
         PageRepository $pageRepository,
-        UserRepository $userRepository,
         Environment $twig,
         AuthenticationService $authenticationService,
         SessionService $sessionService
     ) {
         $this->pageRepository        = $pageRepository;
-        $this->userRepository        = $userRepository;
         $this->twig                  = $twig;
         $this->authenticationService = $authenticationService;
         $this->sessionService        = $sessionService;
@@ -62,9 +60,7 @@ class PageController
         try {
             $this->pageRepository->create($post['uri'], $post['title'], $post['content']);
         } catch (\Throwable $t) {
-            $this->sessionService->addFlash(
-                FlashMessage::createFromParameters($t->getMessage(), FlashMessage::ALERT_LEVEL_ERROR)
-            );
+            $this->sessionService->addFlash(FlashMessage::createFromParameters($t->getMessage(), FlashMessage::ALERT_LEVEL_ERROR));
 
             return new RedirectResponse(Uri::createFromString('/admin/page/create'));
         }
@@ -82,7 +78,11 @@ class PageController
         $page = $this->pageRepository->findById($get['id']);
 
         if ($request->getMethod() === Request::METHOD_GET) {
-            return new Response($this->twig->render('page/single.html.twig', ['title' => 'Edit page', 'page' => $page, 'formTarget'=> "/admin/page/edit?id={$page->getId()}"]));
+            return new Response($this->twig->render('page/single.html.twig', [
+                'title'      => 'Edit page',
+                'page'       => $page,
+                'formTarget' => "/admin/page/edit?id={$page->getId()}",
+            ]));
         }
 
         $pageData = $request->post();

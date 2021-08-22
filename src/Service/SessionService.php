@@ -31,4 +31,12 @@ class SessionService
     {
         $this->session['flashes'] = [];
     }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function destroy(): void
+    {
+        session_destroy();
+    }
 }

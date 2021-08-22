@@ -11,8 +11,8 @@ use PHPUnit\Framework\TestCase;
  * @covers \App\Repository\PageRepository
  * @uses   \App\Service\Database\MariaDbService
  * @uses   \App\Service\Database\RelationalDatabaseInterface
- * @uses   \App\Model\Response\ResponseInterface
- * @uses   \App\Model\Response\Response
+ * @uses   \App\Service\Response\ResponseInterface
+ * @uses   \App\Service\Response\Response
  * @uses   \App\ValueObject\Uri
  */
 class PageRepositoryTest extends TestCase

@@ -6,18 +6,19 @@ use App\Entity\User\User;
 use App\Exception\ExpiredSessionException;
 use App\Exception\NotAuthenticatedException;
 use App\Exception\UserNotFoundException;
-use App\Model\Request;
-use App\Model\Response\Response;
+use App\Service\Request;
+use App\Service\Response\Response;
 use App\Repository\UserRepository;
 use App\Service\AuthenticationService;
 use App\Service\Config;
 use App\Service\DateTimeService;
+use Exception;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @covers  \App\Service\AuthenticationService
  * @uses    \App\Entity\User\User
- * @uses    \App\Model\Request
+ * @uses    \App\Service\Request
  * @uses    \App\Repository\UserRepository
  * @uses    \App\Service\DateTimeService
  * @uses    \App\Exception\AuthenticationExceptionInterface
@@ -154,5 +155,29 @@ class AuthenticationServiceTest extends TestCase
                        ->with($now->modify("+{$sessionExpirationTime} minutes"));
 
         $this->authenticationService->renewSession($this->userMock);
+    }
+
+    public function testValidateNewPasswordThrowsExceptionOnMissingArrayKey() {
+        $this->expectException(Exception::class);
+
+        $this->authenticationService->validateNewPassword([]);
+    }
+
+    public function testValidateNewPasswordThrowsExceptionOnEmptyPassword() {
+        $this->expectException(Exception::class);
+
+        $this->authenticationService->validateNewPassword(['password' => '']);
+    }
+
+    public function testValidateNewPasswordThrowsExceptionOnNonMatchingPassword() {
+        $this->expectException(Exception::class);
+
+        $this->authenticationService->validateNewPassword(['password' => 'abc', 'repeat-password' => 'def']);
+    }
+
+    public function testValidateNewPasswordSucceeds() {
+        $this->authenticationService->validateNewPassword(['password' => 'abc', 'repeat-password' => 'abc']);
+
+        $this->addToAssertionCount(1);
     }
 }

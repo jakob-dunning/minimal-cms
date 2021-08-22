@@ -2,16 +2,18 @@
 
 namespace App\Controller\Admin;
 
-use App\Model\Request;
-use App\Model\Response\RedirectResponse;
-use App\Model\Response\Response;
-use App\Model\Response\ResponseInterface;
+use App\Service\Request;
+use App\Service\Response\RedirectResponse;
+use App\Service\Response\Response;
+use App\Service\Response\ResponseInterface;
 use App\Repository\UserRepository;
 use App\Service\AuthenticationService;
 use App\Service\SessionService;
 use App\ValueObject\FlashMessage;
 use App\ValueObject\Uri;
 use Twig\Environment;
+use function key_exists;
+use function var_dump;
 
 class UserController
 {
@@ -45,19 +47,15 @@ class UserController
 
         $post = $request->post();
 
-        if ($post['password'] === '') {
-            $this->sessionService->addFlash(FlashMessage::createFromParameters('Password cannot be empty', FlashMessage::ALERT_LEVEL_ERROR));
+        try {
+            $this->authenticationService->validateNewPassword($post);
+        } catch (\Exception $e) {
+            $this->sessionService->addFlash(FlashMessage::createFromParameters($e->getMessage(), FlashMessage::ALERT_LEVEL_ERROR));
 
             return new RedirectResponse(Uri::createFromString('/admin/user/create'));
         }
 
-        if ($post['password'] !== $post['repeat-password']) {
-            $this->sessionService->addFlash(FlashMessage::createFromParameters('Passwords do not match', FlashMessage::ALERT_LEVEL_ERROR));
-
-            return new RedirectResponse(Uri::createFromString('/admin/user/create'));
-        }
-
-        $password = password_hash($post['password'], PASSWORD_DEFAULT);
+        $password = $this->authenticationService->hashPassword($post['password']);
 
         try {
             $this->userRepository->create($post['user'], $password);
@@ -98,19 +96,15 @@ class UserController
 
         $post = $request->post();
 
-        if ($post['password'] === '') {
-            $this->sessionService->addFlash(FlashMessage::createFromParameters('Password cannot be empty', FlashMessage::ALERT_LEVEL_ERROR));
+        try {
+            $this->authenticationService->validateNewPassword($post);
+        } catch (\Exception $e) {
+            $this->sessionService->addFlash(FlashMessage::createFromParameters($e->getMessage(), FlashMessage::ALERT_LEVEL_ERROR));
 
             return new RedirectResponse(Uri::createFromString("/admin/user/edit?id={$user->getId()}"));
         }
 
-        if ($post['password'] !== $post['repeat-password']) {
-            $this->sessionService->addFlash(FlashMessage::createFromParameters('Passwords do not match', FlashMessage::ALERT_LEVEL_ERROR));
-
-            return new RedirectResponse(Uri::createFromString("/admin/user/edit?id={$user->getId()}"));
-        }
-
-        $user->setPassword(password_hash($post['password'], PASSWORD_DEFAULT));
+        $user->setPassword($this->authenticationService->hashPassword($post['password']));
         $this->userRepository->persist($user);
         $this->sessionService->addFlash(FlashMessage::createFromParameters('New password saved successfully', FlashMessage::ALERT_LEVEL_SUCCESS));
 

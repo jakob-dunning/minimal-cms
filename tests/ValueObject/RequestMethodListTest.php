@@ -1,12 +1,12 @@
 <?php
 
-use App\Model\Request;
+use App\Service\Request;
 use App\ValueObject\RequestMethodList;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \App\ValueObject\RequestMethodList
- * @uses   \App\Model\Request
+ * @uses   \App\Service\Request
  */
 class RequestMethodListTest extends TestCase
 {

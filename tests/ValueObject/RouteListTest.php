@@ -1,6 +1,6 @@
 <?php
 
-use App\Model\Request;
+use App\Service\Request;
 use App\ValueObject\RequestMethodList;
 use App\ValueObject\Route;
 use App\ValueObject\RouteList;
@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
  * @uses   \App\ValueObject\RequestMethodList
  * @uses   \App\ValueObject\Uri
  * @uses   \App\ValueObject\Route
- * @uses   \App\Model\Request
+ * @uses   \App\Service\Request
  */
 class RouteListTest extends TestCase
 {

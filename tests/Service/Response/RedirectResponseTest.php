@@ -1,17 +1,17 @@
 <?php
 
-use App\Model\Response\RedirectResponse;
+use App\Service\Response\RedirectResponse;
 use App\ValueObject\Uri;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \App\Model\Response\RedirectResponse
- * @uses \App\Model\Response\ResponseInterface
+ * @covers \App\Service\Response\RedirectResponse
+ * @uses \App\Service\Response\ResponseInterface
  * @uses   \App\ValueObject\Uri
  */
 class RedirectResponseTest extends TestCase
 {
-    public function testRedirectResponseReturnsDefaultHeaders()
+    public function testReturnsDefaultHeaders()
     {
         $target            = '/';
         $response          = new RedirectResponse(Uri::createFromString($target));
@@ -20,7 +20,7 @@ class RedirectResponseTest extends TestCase
         $this->assertSame(["http/1.1 {$defaultStatusCode}", "Location: {$target}"], $response->getHeaders());
     }
 
-    public function testRedirectResponseReturnsHeaders()
+    public function testReturnsHeaders()
     {
         $target     = '/';
         $response   = new RedirectResponse(Uri::createFromString($target));
@@ -29,10 +29,17 @@ class RedirectResponseTest extends TestCase
         $this->assertSame(["http/1.1 {$statusCode}", "Location: {$target}"], $response->getHeaders());
     }
 
-    public function testRedirectResponseReturnsEmptyBody()
+    public function testReturnsEmptyBody()
     {
         $response = new RedirectResponse(Uri::createFromString('/'));
 
         $this->assertSame('', $response->getBody());
+    }
+
+    public function testReturnsStatusCode() {
+        $statusCode = 301;
+        $response = new RedirectResponse(Uri::createFromString('/'), $statusCode);
+
+        $this->assertSame($statusCode, $response->getStatusCode());
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Exception;
 
-use App\Model\Response\Response;
+use App\Service\Response\Response;
 use Throwable;
 
 /**

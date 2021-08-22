@@ -1,9 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace App\Model;
+namespace App\Service;
 
 use App\ValueObject\Uri;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Request
 {
     public const METHOD_POST = 'POST';

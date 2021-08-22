@@ -4,6 +4,7 @@ use App\Entity\User\User;
 use App\Exception\UserNotFoundException;
 use App\Repository\UserRepository;
 use App\Service\Database\MariaDbService;
+use App\Service\DateTimeService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -11,8 +12,8 @@ use PHPUnit\Framework\TestCase;
  * @covers \App\Repository\UserRepository
  * @uses   \App\Service\Database\MariaDbService
  * @uses   \App\Service\Database\RelationalDatabaseInterface
- * @uses   \App\Model\Response\ResponseInterface
- * @uses   \App\Model\Response\Response
+ * @uses   \App\Service\Response\ResponseInterface
+ * @uses   \App\Service\Response\Response
  */
 class UserRepositoryTest extends TestCase
 {
@@ -50,8 +51,8 @@ class UserRepositoryTest extends TestCase
         $this->assertSame($user->getId(), $this->defaultUserData['id']);
         $this->assertSame($user->getPassword(), $this->defaultUserData['password']);
         $this->assertSame(
-            $user->getSessionExpiresAt()->format('Y-m-d H:i:s'),
-            (new \DateTime($this->defaultUserData['session_expires_at']))->format('Y-m-d H:i:s')
+            $user->getSessionExpiresAt()->format(DateTimeService::FORMAT_SQL),
+            (new \DateTime($this->defaultUserData['session_expires_at']))->format(DateTimeService::FORMAT_SQL)
         );
         $this->assertSame($user->getSessionId(), $this->defaultUserData['session_id']);
     }
@@ -81,8 +82,8 @@ class UserRepositoryTest extends TestCase
         $this->assertSame($user->getId(), $this->defaultUserData['id']);
         $this->assertSame($user->getPassword(), $this->defaultUserData['password']);
         $this->assertSame(
-            $user->getSessionExpiresAt()->format('Y-m-d H:i:s'),
-            (new \DateTime($this->defaultUserData['session_expires_at']))->format('Y-m-d H:i:s')
+            $user->getSessionExpiresAt()->format(DateTimeService::FORMAT_SQL),
+            (new \DateTime($this->defaultUserData['session_expires_at']))->format(DateTimeService::FORMAT_SQL)
         );
         $this->assertSame($user->getSessionId(), $this->defaultUserData['session_id']);
     }
@@ -112,8 +113,8 @@ class UserRepositoryTest extends TestCase
         $this->assertSame($user->getId(), $this->defaultUserData['id']);
         $this->assertSame($user->getPassword(), $this->defaultUserData['password']);
         $this->assertSame(
-            $user->getSessionExpiresAt()->format('Y-m-d H:i:s'),
-            (new \DateTime($this->defaultUserData['session_expires_at']))->format('Y-m-d H:i:s')
+            $user->getSessionExpiresAt()->format(DateTimeService::FORMAT_SQL),
+            (new \DateTime($this->defaultUserData['session_expires_at']))->format(DateTimeService::FORMAT_SQL)
         );
         $this->assertSame($user->getSessionId(), $this->defaultUserData['session_id']);
     }
@@ -164,8 +165,8 @@ class UserRepositoryTest extends TestCase
         $this->assertSame($user->getId(), $userData[0]['id']);
         $this->assertSame($user->getPassword(), $userData[0]['password']);
         $this->assertSame(
-            $user->getSessionExpiresAt()->format('Y-m-d H:i:s'),
-            (new \DateTime($userData[0]['session_expires_at']))->format('Y-m-d H:i:s')
+            $user->getSessionExpiresAt()->format(DateTimeService::FORMAT_SQL),
+            (new \DateTime($userData[0]['session_expires_at']))->format(DateTimeService::FORMAT_SQL)
         );
         $this->assertSame($user->getSessionId(), $userData[0]['session_id']);
 
@@ -173,8 +174,8 @@ class UserRepositoryTest extends TestCase
         $this->assertSame($user2->getId(), $userData[1]['id']);
         $this->assertSame($user2->getPassword(), $userData[1]['password']);
         $this->assertSame(
-            $user2->getSessionExpiresAt()->format('Y-m-d H:i:s'),
-            (new \DateTime($userData[1]['session_expires_at']))->format('Y-m-d H:i:s')
+            $user2->getSessionExpiresAt()->format(DateTimeService::FORMAT_SQL),
+            (new \DateTime($userData[1]['session_expires_at']))->format(DateTimeService::FORMAT_SQL)
         );
         $this->assertSame($user2->getSessionId(), $userData[1]['session_id']);
     }
