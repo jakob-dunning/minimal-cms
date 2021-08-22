@@ -74,7 +74,7 @@ class DashboardControllerTest extends TestCase
                     ->willReturn(Request::METHOD_GET);
 
         $this->authenticationServiceMock->expects($this->once())
-                                        ->method('authenticateUser')
+                                        ->method('loginUser')
                                         ->with($requestMock)
                                         ->willThrowException(new NotAuthenticatedException());
 
@@ -92,7 +92,7 @@ class DashboardControllerTest extends TestCase
                     ->willReturn(Request::METHOD_GET);
 
         $this->authenticationServiceMock->expects($this->once())
-                                        ->method('authenticateUser')
+                                        ->method('loginUser')
                                         ->with($requestMock);
 
         $response = $this->dashboardController->login($requestMock);
@@ -103,7 +103,6 @@ class DashboardControllerTest extends TestCase
 
     public function testUserCanLogin()
     {
-        $sessionId        = 'jhskdfhusdifhuisdf';
         $username         = 'hanni';
         $expectedPassword = 'hansni';
         $actualPassword   = 'hansni';
@@ -115,20 +114,14 @@ class DashboardControllerTest extends TestCase
         $requestMock->expects($this->exactly(2))
                     ->method('post')
                     ->willReturn(['user' => $username, 'password' => $actualPassword]);
-        $requestMock->expects($this->once())
-                    ->method('getSessionId')
-                    ->willReturn($sessionId);
 
         $userMock = $this->createMock(User::class);
-        $userMock->expects($this->once())
-                 ->method('setSessionId')
-                 ->with($sessionId);
         $userMock->expects($this->once())
                  ->method('getPassword')
                  ->willReturn($expectedPassword);
 
         $this->authenticationServiceMock->expects($this->once())
-                                        ->method('updateSessionExpiration')
+                                        ->method('renewSession')
                                         ->with($userMock);
         $this->authenticationServiceMock->expects($this->once())
                                         ->method('verifyPassword')
@@ -139,9 +132,6 @@ class DashboardControllerTest extends TestCase
                                  ->method('findByUsername')
                                  ->with($username)
                                  ->willReturn($userMock);
-        $this->userRepositoryMock->expects($this->once())
-                                 ->method('persist')
-                                 ->with($userMock);
 
         $response = $this->dashboardController->login($requestMock);
 
@@ -219,7 +209,7 @@ class DashboardControllerTest extends TestCase
                  ->willReturn($userMock);
 
         $this->authenticationServiceMock->expects($this->once())
-                                        ->method('authenticateUser')
+                                        ->method('loginUser')
                                         ->with($requestMock)
                                         ->willReturn($userMock);
 
@@ -238,7 +228,7 @@ class DashboardControllerTest extends TestCase
         $requestMock = $this->createMock(Request::class);
 
         $this->authenticationServiceMock->expects($this->once())
-                                        ->method('authenticateUser')
+                                        ->method('loginUser')
                                         ->with($requestMock);
 
         $this->userRepositoryMock->expects($this->once())

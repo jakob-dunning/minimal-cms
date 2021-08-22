@@ -6,12 +6,12 @@ use App\Entity\User\User;
 use App\Exception\ExpiredSessionException;
 use App\Exception\NotAuthenticatedException;
 use App\Exception\UserNotFoundException;
-use App\Service\Request;
-use App\Service\Response\Response;
 use App\Repository\UserRepository;
 use App\Service\AuthenticationService;
 use App\Service\Config;
 use App\Service\DateTimeService;
+use App\Service\Request;
+use App\Service\Response\Response;
 use Exception;
 use PHPUnit\Framework\TestCase;
 
@@ -52,7 +52,7 @@ class AuthenticationServiceTest extends TestCase
         $this->authenticationService = new AuthenticationService($this->configMock, $this->userRepositoryMock, $this->dateTimeServiceMock);
     }
 
-    public function testAuthenticateUserThrowsNotAuthenticatedException()
+    public function testLoginUserThrowsNotAuthenticatedException()
     {
         $sessionId = 'hjsdfkglsdgflisdhfui34563456';
 
@@ -72,7 +72,7 @@ class AuthenticationServiceTest extends TestCase
         $this->authenticationService->loginUser($this->requestMock);
     }
 
-    public function testAuthenticateUserThrowsExpiredSessionException()
+    public function testLoginUserThrowsExpiredSessionException()
     {
         $sessionId = 'hjsdfkglsdgflisdhfui34563456';
 
@@ -100,7 +100,7 @@ class AuthenticationServiceTest extends TestCase
         $this->authenticationService->loginUser($this->requestMock);
     }
 
-    public function testAuthenticateUser()
+    public function testLoginUser()
     {
         $sessionId = 'hjsdfkglsdgflissaddhfui34563456';
         $username  = 'Bartleby';
@@ -127,7 +127,7 @@ class AuthenticationServiceTest extends TestCase
                                   ->willReturn(new \DateTime());
 
         $requestMock = $this->createMock(Request::class);
-        $requestMock->expects($this->once())
+        $requestMock->expects($this->exactly(2))
                     ->method('getSessionId')
                     ->willReturn($sessionId);
 
@@ -139,8 +139,9 @@ class AuthenticationServiceTest extends TestCase
     public function testRenewSession()
     {
         $sessionExpirationTime = 45;
+        $sessionId             = 'asdasdasdadasd';
+        $now                   = new \DateTime();
 
-        $now = new \DateTime();
         $this->dateTimeServiceMock->expects($this->once())
                                   ->method('now')
                                   ->willReturn($now);
@@ -153,29 +154,40 @@ class AuthenticationServiceTest extends TestCase
         $this->userMock->expects($this->once())
                        ->method('setSessionExpiresAt')
                        ->with($now->modify("+{$sessionExpirationTime} minutes"));
+        $this->userMock->expects($this->once())
+                       ->method('setSessionId')
+                       ->with($sessionId);
 
-        $this->authenticationService->renewSession($this->userMock);
+        $this->userRepositoryMock->expects($this->once())
+                                 ->method('persist')
+                                 ->with($this->userMock);
+
+        $this->authenticationService->renewSession($this->userMock, $sessionId);
     }
 
-    public function testValidateNewPasswordThrowsExceptionOnMissingArrayKey() {
+    public function testValidateNewPasswordThrowsExceptionOnMissingArrayKey()
+    {
         $this->expectException(Exception::class);
 
         $this->authenticationService->validateNewPassword([]);
     }
 
-    public function testValidateNewPasswordThrowsExceptionOnEmptyPassword() {
+    public function testValidateNewPasswordThrowsExceptionOnEmptyPassword()
+    {
         $this->expectException(Exception::class);
 
         $this->authenticationService->validateNewPassword(['password' => '']);
     }
 
-    public function testValidateNewPasswordThrowsExceptionOnNonMatchingPassword() {
+    public function testValidateNewPasswordThrowsExceptionOnNonMatchingPassword()
+    {
         $this->expectException(Exception::class);
 
         $this->authenticationService->validateNewPassword(['password' => 'abc', 'repeat-password' => 'def']);
     }
 
-    public function testValidateNewPasswordSucceeds() {
+    public function testValidateNewPasswordSucceeds()
+    {
         $this->authenticationService->validateNewPassword(['password' => 'abc', 'repeat-password' => 'abc']);
 
         $this->addToAssertionCount(1);

@@ -52,7 +52,7 @@ class UserControllerTest extends TestCase
     public function testViewCreateForm()
     {
         $this->authenticationServiceMock->expects($this->once())
-                                        ->method('authenticateUser')
+                                        ->method('loginUser')
                                         ->with($this->requestMock);
 
         $this->requestMock->expects($this->once())
@@ -69,7 +69,7 @@ class UserControllerTest extends TestCase
     {
         $post = [];
         $this->authenticationServiceMock->expects($this->once())
-                                        ->method('authenticateUser')
+                                        ->method('loginUser')
                                         ->with($this->requestMock);
         $this->authenticationServiceMock->expects($this->once())
                                         ->method('validateNewPassword')
@@ -95,7 +95,7 @@ class UserControllerTest extends TestCase
         $hashedPassword = '$2y$10$A6GORwPx2KW3zmLe1EyfOuDrvOzF.bF3NtNdvSf7QM6diD3pbQcqu';
 
         $this->authenticationServiceMock->expects($this->once())
-                                        ->method('authenticateUser')
+                                        ->method('loginUser')
                                         ->with($this->requestMock);
         $this->authenticationServiceMock->expects($this->once())
                                         ->method('validateNewPassword')
@@ -129,7 +129,7 @@ class UserControllerTest extends TestCase
         $hashedPassword = '$2y$10$A6GORwPx2KW3zmLe1EyfOuDrvOzF.bF3NtNdvSf7QM6diD3pbQcqu';
 
         $this->authenticationServiceMock->expects($this->once())
-                                        ->method('authenticateUser')
+                                        ->method('loginUser')
                                         ->with($this->requestMock);
         $this->authenticationServiceMock->expects($this->once())
                                         ->method('validateNewPassword')
@@ -162,7 +162,7 @@ class UserControllerTest extends TestCase
                                  ->method('findAll');
 
         $this->authenticationServiceMock->expects($this->once())
-                                        ->method('authenticateUser')
+                                        ->method('loginUser')
                                         ->with($this->requestMock);
 
         $response = $this->userController->list($this->requestMock);
@@ -190,7 +190,7 @@ class UserControllerTest extends TestCase
                                  ->willReturn($userMock);
 
         $this->authenticationServiceMock->expects($this->once())
-                                        ->method('authenticateUser')
+                                        ->method('loginUser')
                                         ->with($this->requestMock);
 
         $response = $this->userController->edit($this->requestMock);
@@ -225,7 +225,7 @@ class UserControllerTest extends TestCase
                                  ->willReturn($userMock);
 
         $this->authenticationServiceMock->expects($this->once())
-                                        ->method('authenticateUser')
+                                        ->method('loginUser')
                                         ->with($this->requestMock);
         $this->authenticationServiceMock->expects($this->once())
                                         ->method('validateNewPassword')
@@ -268,7 +268,7 @@ class UserControllerTest extends TestCase
                                  ->with($userMock);
 
         $this->authenticationServiceMock->expects($this->once())
-                                        ->method('authenticateUser')
+                                        ->method('loginUser')
                                         ->with($this->requestMock);
         $this->authenticationServiceMock->expects($this->once())
                                         ->method('validateNewPassword')
@@ -290,7 +290,7 @@ class UserControllerTest extends TestCase
         $get    = ['id' => $userId];
 
         $this->authenticationServiceMock->expects($this->once())
-                                        ->method('authenticateUser')
+                                        ->method('loginUser')
                                         ->with($this->requestMock);
 
         $this->requestMock->expects($this->once())
