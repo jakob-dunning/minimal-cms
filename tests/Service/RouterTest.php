@@ -12,7 +12,7 @@ use App\Service\Response\RedirectResponse;
 use App\Service\Response\Response;
 use App\Service\Config;
 use App\Service\Router;
-use App\Service\SessionService;
+use App\Service\Session;
 use App\ValueObject\RequestMethodList;
 use App\ValueObject\Route;
 use App\ValueObject\RouteList;
@@ -28,7 +28,7 @@ use Twig\Environment;
  * @uses   \App\Controller\Admin\UserController
  * @uses   \App\Controller\Admin\DashboardController
  * @uses   \App\Controller\PublicController
- * @uses   \App\Service\SessionService
+ * @uses   \App\Service\Session
  * @uses   \App\ValueObject\RouteList
  * @uses   \App\Service\FileLoader\JsonFileLoader
  * @uses   \App\ValueObject\RequestMethodList
@@ -72,7 +72,7 @@ class RouterTest extends TestCase
         $this->dashboardControllerMock = $this->createMock(DashboardController::class);
         $this->pageControllerMock      = $this->createMock(PageController::class);
         $this->defaultControllerMock   = $this->createMock(PublicController::class);
-        $this->sessionServiceMock      = $this->createMock(SessionService::class);
+        $this->sessionServiceMock      = $this->createMock(Session::class);
         $this->configMock              = $this->createMock(Config::class);
         $this->twigMock                = $this->createMock(Environment::class);
         $this->routeListMock           = $this->createMock(RouteList::class);

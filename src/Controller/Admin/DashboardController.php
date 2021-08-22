@@ -13,7 +13,7 @@ use App\Service\Request;
 use App\Service\Response\RedirectResponse;
 use App\Service\Response\Response;
 use App\Service\Response\ResponseInterface;
-use App\Service\SessionService;
+use App\Service\Session;
 use App\ValueObject\Uri;
 use Twig\Environment;
 use function var_dump;
@@ -38,7 +38,7 @@ class DashboardController
 
     private AuthenticationService $authenticationService;
 
-    private SessionService $sessionService;
+    private Session $sessionService;
 
     public function __construct(
         UserRepository $userRepository,
@@ -46,7 +46,7 @@ class DashboardController
         Config $config,
         Environment $twig,
         AuthenticationService $authenticationService,
-        SessionService $sessionService
+        Session $sessionService
     ) {
         $this->config                = $config;
         $this->userRepository        = $userRepository;
@@ -78,9 +78,8 @@ class DashboardController
             throw new NotAuthenticatedException();
         }
 
-        $user->setSessionId($request->getSessionId());
-        $this->authenticationService->renewSession($user);
-        $this->userRepository->persist($user);
+        $this->authenticationService->renewSessionId($user);
+        $this->authenticationService->updateSessionExpiration($user);
 
         return new RedirectResponse(Uri::createFromString('/admin/dashboard'));
     }

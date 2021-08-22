@@ -3,8 +3,10 @@
 namespace App\Service;
 
 use App\ValueObject\FlashMessage;
+use function session_destroy;
+use function session_regenerate_id;
 
-class SessionService
+class Session
 {
     private array $session;
 
@@ -37,6 +39,7 @@ class SessionService
      */
     public function destroy(): void
     {
+        session_regenerate_id();
         session_destroy();
     }
 }

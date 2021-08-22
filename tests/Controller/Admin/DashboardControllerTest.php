@@ -11,7 +11,7 @@ use App\Service\Config;
 use App\Service\Request;
 use App\Service\Response\RedirectResponse;
 use App\Service\Response\Response;
-use App\Service\SessionService;
+use App\Service\Session;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
@@ -25,7 +25,7 @@ use Twig\Environment;
  * @uses   \App\Service\Config
  * @uses   \App\Service\Response\RedirectResponse
  * @uses   \App\Service\Response\ResponseInterface
- * @uses   \App\Service\SessionService
+ * @uses   \App\Service\Session
  * @uses   \App\ValueObject\Uri
  * @uses   \App\Exception\AuthenticationExceptionInterface
  */
@@ -54,7 +54,7 @@ class DashboardControllerTest extends TestCase
         $this->configMock                = $this->createMock(Config::class);
         $this->twigMock                  = $this->createMock(Environment::class);
         $this->authenticationServiceMock = $this->createMock(AuthenticationService::class);
-        $this->sessionServiceMock        = $this->createMock(SessionService::class);
+        $this->sessionServiceMock        = $this->createMock(Session::class);
 
         $this->dashboardController = new DashboardController(
             $this->userRepositoryMock,
@@ -128,7 +128,7 @@ class DashboardControllerTest extends TestCase
                  ->willReturn($expectedPassword);
 
         $this->authenticationServiceMock->expects($this->once())
-                                        ->method('renewSession')
+                                        ->method('updateSessionExpiration')
                                         ->with($userMock);
         $this->authenticationServiceMock->expects($this->once())
                                         ->method('verifyPassword')

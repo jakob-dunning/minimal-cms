@@ -129,8 +129,8 @@ class Factory
         return Config::createFromArray((new JsonFileLoader(__DIR__ . '/../../config/general.json'))->getData());
     }
 
-    function createSessionService(): SessionService
+    function createSessionService(): Session
     {
-        return new SessionService($_SESSION);
+        return new Session($_SESSION);
     }
 }

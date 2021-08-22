@@ -26,7 +26,7 @@ class Router
 
     private UserController $userController;
 
-    private SessionService $sessionService;
+    private Session $sessionService;
 
     private Config $config;
 
@@ -39,7 +39,7 @@ class Router
         UserController $userController,
         PageController $pageController,
         PublicController $publicController,
-        SessionService $sessionService,
+        Session $sessionService,
         Config $config,
         Environment $environment,
         RouteList $routes

@@ -2,12 +2,12 @@
 
 namespace Test\Service;
 
-use App\Service\SessionService;
+use App\Service\Session;
 use App\ValueObject\FlashMessage;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \App\Service\SessionService
+ * @covers \App\Service\Session
  * @uses   \App\ValueObject\FlashMessage
  */
 class SessionServiceTest extends TestCase
@@ -20,7 +20,7 @@ class SessionServiceTest extends TestCase
         $flashMessageMock2 = $this->createMock(FlashMessage::class);
         $flashMessageMock3 = $this->createMock(FlashMessage::class);
 
-        $sessionService = new SessionService($sessionMock);
+        $sessionService = new Session($sessionMock);
         $sessionService->addFlash($flashMessageMock1);
         $sessionService->addFlash($flashMessageMock2);
         $sessionService->addFlash($flashMessageMock3);
@@ -36,7 +36,7 @@ class SessionServiceTest extends TestCase
         $flashMessageMock2 = $this->createMock(FlashMessage::class);
         $flashMessageMock3 = $this->createMock(FlashMessage::class);
 
-        $sessionService = new SessionService($sessionMock);
+        $sessionService = new Session($sessionMock);
         $sessionService->addFlash($flashMessageMock1);
         $sessionService->addFlash($flashMessageMock2);
         $sessionService->addFlash($flashMessageMock3);
@@ -52,7 +52,7 @@ class SessionServiceTest extends TestCase
         $flashMessageMock2 = $this->createMock(FlashMessage::class);
         $flashMessageMock3 = $this->createMock(FlashMessage::class);
 
-        $sessionService = new SessionService($sessionMock);
+        $sessionService = new Session($sessionMock);
         $sessionService->addFlash($flashMessageMock1);
         $sessionService->addFlash($flashMessageMock2);
         $sessionService->addFlash($flashMessageMock3);

@@ -9,7 +9,7 @@ use App\Service\Request;
 use App\Service\Response\RedirectResponse;
 use App\Service\Response\Response;
 use App\Service\Response\ResponseInterface;
-use App\Service\SessionService;
+use App\Service\Session;
 use App\ValueObject\FlashMessage;
 use App\ValueObject\Uri;
 use Twig\Environment;
@@ -22,13 +22,13 @@ class PageController
 
     private AuthenticationService $authenticationService;
 
-    private SessionService $sessionService;
+    private Session $sessionService;
 
     public function __construct(
         PageRepository $pageRepository,
         Environment $twig,
         AuthenticationService $authenticationService,
-        SessionService $sessionService
+        Session $sessionService
     ) {
         $this->pageRepository        = $pageRepository;
         $this->twig                  = $twig;

@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
 
-use App\Service\Request;
 use App\Service\Factory;
+use App\Service\Request;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+session_set_cookie_params(['samesite' => 'Strict', 'httponly' => true]);
 session_start();
 
 $request = Request::createFromGlobals();

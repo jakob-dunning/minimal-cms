@@ -7,7 +7,7 @@ use App\Service\AuthenticationService;
 use App\Service\Request;
 use App\Service\Response\RedirectResponse;
 use App\Service\Response\Response;
-use App\Service\SessionService;
+use App\Service\Session;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
@@ -40,7 +40,7 @@ class PageControllerTest extends TestCase
         $this->pageRepositoryMock        = $this->createMock(PageRepository::class);
         $this->twigMock                  = $this->createMock(Environment::class);
         $this->authenticationServiceMock = $this->createMock(AuthenticationService::class);
-        $this->sessionServiceMock        = $this->createMock(SessionService::class);
+        $this->sessionServiceMock        = $this->createMock(Session::class);
         $this->requestMock               = $this->createMock(Request::class);
         $this->pageController            = new PageController(
             $this->pageRepositoryMock,

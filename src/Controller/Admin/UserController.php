@@ -8,7 +8,7 @@ use App\Service\Response\Response;
 use App\Service\Response\ResponseInterface;
 use App\Repository\UserRepository;
 use App\Service\AuthenticationService;
-use App\Service\SessionService;
+use App\Service\Session;
 use App\ValueObject\FlashMessage;
 use App\ValueObject\Uri;
 use Twig\Environment;
@@ -23,13 +23,13 @@ class UserController
 
     private AuthenticationService $authenticationService;
 
-    private SessionService $sessionService;
+    private Session $sessionService;
 
     public function __construct(
         UserRepository $userRepository,
         Environment $twig,
         AuthenticationService $authenticationService,
-        SessionService $sessionService
+        Session $sessionService
     ) {
         $this->userRepository        = $userRepository;
         $this->twig                  = $twig;
