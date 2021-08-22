@@ -16,7 +16,6 @@ use PDO;
 use Twig\Environment;
 use Twig\Extra\String\StringExtension;
 use Twig\Loader\FilesystemLoader;
-use function var_dump;
 
 /**
  * @codeCoverageIgnore
@@ -38,14 +37,14 @@ class Factory
                 $this->createPageRepository(),
                 $this->createConfig(),
                 $this->createTwig(),
-                $this->createAuthenticationService(),
+                $this->createPasswordService(),
                 $this->createSessionService(),
                 $this->createLoginService()
             ),
             new UserController(
                 $this->createUserRepository(),
                 $this->createTwig(),
-                $this->createAuthenticationService(),
+                $this->createPasswordService(),
                 $this->createSessionService(),
                 $this->createLoginService()
             ),
@@ -69,7 +68,7 @@ class Factory
     public function createTwig(): Environment
     {
         try {
-            $user = $this->createAuthenticationService()->findAuthenticatedUser($this->request);
+            $user = $this->createLoginService()->login($this->request);
         } catch (AuthenticationExceptionInterface $e) {
             $user = null;
         }
@@ -85,9 +84,14 @@ class Factory
         return $twig;
     }
 
-    private function createAuthenticationService(): AuthenticationService
+    public function createSessionService(): Session
     {
-        return new AuthenticationService($this->createConfig(), $this->createUserRepository(), $this->createDateTimeService());
+        return new Session($_SESSION);
+    }
+
+    private function createPasswordService(): PasswordService
+    {
+        return new PasswordService($this->createConfig(), $this->createUserRepository(), $this->createDateTimeService());
     }
 
     private function createDatabase(): MariaDbService
@@ -127,18 +131,18 @@ class Factory
         );
     }
 
-    private static function createConfig(): Config
+    private function createConfig(): Config
     {
         return Config::createFromArray((new JsonFileLoader(__DIR__ . '/../../config/general.json'))->getData());
     }
 
-    function createSessionService(): Session
-    {
-        return new Session($_SESSION);
-    }
-
     private function createLoginService(): LoginService
     {
-        return new LoginService($this->createAuthenticationService(), $this->createUserRepository());
+        return new LoginService(
+            $this->createPasswordService(),
+            $this->createUserRepository(),
+            $this->createDateTimeService(),
+            $this->createConfig()
+        );
     }
 }

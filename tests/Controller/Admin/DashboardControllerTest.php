@@ -6,9 +6,9 @@ use App\Exception\NotAuthenticatedException;
 use App\Exception\UserNotFoundException;
 use App\Repository\PageRepository;
 use App\Repository\UserRepository;
-use App\Service\AuthenticationService;
 use App\Service\Config;
 use App\Service\LoginService;
+use App\Service\PasswordService;
 use App\Service\Request;
 use App\Service\Response\RedirectResponse;
 use App\Service\Response\Response;
@@ -22,7 +22,7 @@ use Twig\Environment;
  * @uses   \App\Service\Response\Response
  * @uses   \App\Repository\PageRepository
  * @uses   \App\Repository\UserRepository
- * @uses   \App\Service\AuthenticationService
+ * @uses   \App\Service\PasswordService
  * @uses   \App\Service\Config
  * @uses   \App\Service\Response\RedirectResponse
  * @uses   \App\Service\Response\ResponseInterface
@@ -41,7 +41,7 @@ class DashboardControllerTest extends TestCase
 
     private MockObject          $twigMock;
 
-    private MockObject          $authenticationServiceMock;
+    private MockObject          $passwordServiceMock;
 
     private MockObject          $userRepositoryMock;
 
@@ -53,20 +53,20 @@ class DashboardControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->userRepositoryMock        = $this->createMock(UserRepository::class);
-        $this->pageRepositoryMock        = $this->createMock(PageRepository::class);
-        $this->configMock                = $this->createMock(Config::class);
-        $this->twigMock                  = $this->createMock(Environment::class);
-        $this->authenticationServiceMock = $this->createMock(AuthenticationService::class);
-        $this->sessionServiceMock        = $this->createMock(Session::class);
-        $this->loginServiceMock          = $this->createMock(LoginService::class);
+        $this->userRepositoryMock  = $this->createMock(UserRepository::class);
+        $this->pageRepositoryMock  = $this->createMock(PageRepository::class);
+        $this->configMock          = $this->createMock(Config::class);
+        $this->twigMock            = $this->createMock(Environment::class);
+        $this->passwordServiceMock = $this->createMock(PasswordService::class);
+        $this->sessionServiceMock  = $this->createMock(Session::class);
+        $this->loginServiceMock    = $this->createMock(LoginService::class);
 
         $this->dashboardController = new DashboardController(
             $this->userRepositoryMock,
             $this->pageRepositoryMock,
             $this->configMock,
             $this->twigMock,
-            $this->authenticationServiceMock,
+            $this->passwordServiceMock,
             $this->sessionServiceMock,
             $this->loginServiceMock
         );
@@ -80,9 +80,9 @@ class DashboardControllerTest extends TestCase
                     ->willReturn(Request::METHOD_GET);
 
         $this->loginServiceMock->expects($this->once())
-                    ->method('login')
-                    ->with($requestMock)
-                    ->willThrowException(new NotAuthenticatedException());
+                               ->method('login')
+                               ->with($requestMock)
+                               ->willThrowException(new NotAuthenticatedException());
 
         $response = $this->dashboardController->login($requestMock);
 
@@ -98,8 +98,8 @@ class DashboardControllerTest extends TestCase
                     ->willReturn(Request::METHOD_GET);
 
         $this->loginServiceMock->expects($this->once())
-                                        ->method('login')
-                                        ->with($requestMock);
+                               ->method('login')
+                               ->with($requestMock);
 
         $response = $this->dashboardController->login($requestMock);
 
@@ -126,13 +126,13 @@ class DashboardControllerTest extends TestCase
                  ->method('getPassword')
                  ->willReturn($expectedPassword);
 
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('renewSession')
-                                        ->with($userMock);
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('verifyPassword')
-                                        ->with($expectedPassword, $actualPassword)
-                                        ->willReturn(true);
+        $this->loginServiceMock->expects($this->once())
+                               ->method('renewSession')
+                               ->with($userMock);
+        $this->passwordServiceMock->expects($this->once())
+                                  ->method('verifyPassword')
+                                  ->with($expectedPassword, $actualPassword)
+                                  ->willReturn(true);
 
         $this->userRepositoryMock->expects($this->once())
                                  ->method('findByUsername')
@@ -190,10 +190,10 @@ class DashboardControllerTest extends TestCase
                                  ->method('findByUsername')
                                  ->willReturn($userMock);
 
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('verifyPassword')
-                                        ->with($actualPassword, $expectedPassword)
-                                        ->willReturn(false);
+        $this->passwordServiceMock->expects($this->once())
+                                  ->method('verifyPassword')
+                                  ->with($actualPassword, $expectedPassword)
+                                  ->willReturn(false);
 
         $this->expectException(NotAuthenticatedException::class);
 
@@ -215,9 +215,9 @@ class DashboardControllerTest extends TestCase
                  ->willReturn($userMock);
 
         $this->loginServiceMock->expects($this->once())
-                                        ->method('login')
-                                        ->with($requestMock)
-                                        ->willReturn($userMock);
+                               ->method('login')
+                               ->with($requestMock)
+                               ->willReturn($userMock);
 
         $this->userRepositoryMock->expects($this->once())
                                  ->method('persist')
@@ -234,8 +234,8 @@ class DashboardControllerTest extends TestCase
         $requestMock = $this->createMock(Request::class);
 
         $this->loginServiceMock->expects($this->once())
-                                        ->method('login')
-                                        ->with($requestMock);
+                               ->method('login')
+                               ->with($requestMock);
 
         $this->userRepositoryMock->expects($this->once())
                                  ->method('findAll');
