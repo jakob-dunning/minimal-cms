@@ -18,8 +18,6 @@ class PageController
 {
     private PageRepository $pageRepository;
 
-    private UserRepository $userRepository;
-
     private Environment $twig;
 
     private AuthenticationService $authenticationService;

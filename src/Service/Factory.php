@@ -48,7 +48,6 @@ class Factory
             ),
             new PageController(
                 $this->createPageRepository(),
-                $this->createUserRepository(),
                 $this->createTwig(),
                 $this->createAuthenticationService(),
                 $this->createSessionService()
