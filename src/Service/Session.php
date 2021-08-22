@@ -3,8 +3,6 @@
 namespace App\Service;
 
 use App\ValueObject\FlashMessage;
-use function session_destroy;
-use function session_regenerate_id;
 
 class Session
 {
@@ -32,14 +30,5 @@ class Session
     public function deleteFlashes(): void
     {
         $this->session['flashes'] = [];
-    }
-
-    /**
-     * @codeCoverageIgnore
-     */
-    public function destroy(): void
-    {
-        session_regenerate_id();
-        session_destroy();
     }
 }

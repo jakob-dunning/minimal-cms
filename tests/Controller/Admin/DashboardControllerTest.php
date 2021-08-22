@@ -227,9 +227,6 @@ class DashboardControllerTest extends TestCase
                                  ->method('persist')
                                  ->with($userMock);
 
-        $this->sessionServiceMock->expects($this->once())
-                                 ->method('destroy');
-
         $response = $this->dashboardController->logout($requestMock);
 
         $this->assertSame(["http/1.1 302", "Location: /admin/login"], $response->getHeaders());

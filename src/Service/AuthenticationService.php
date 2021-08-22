@@ -9,8 +9,6 @@ use App\Exception\UserNotFoundException;
 use App\Repository\UserRepository;
 use function key_exists;
 use function password_hash;
-use function session_id;
-use function session_regenerate_id;
 use const PASSWORD_DEFAULT;
 
 class AuthenticationService
@@ -40,22 +38,18 @@ class AuthenticationService
             throw new ExpiredSessionException();
         }
 
-        $this->updateSessionExpiration($user);
+        $this->renewSession($user, $request->getSessionId());
 
         return $user;
     }
 
-    public function updateSessionExpiration(UserInterface $user): void
+    public function renewSession(UserInterface $user, string $sessionId): void
     {
+        if ($user->getSessionId() === null) {
+            $user->setSessionId($sessionId);
+        }
         $sessionExpirationTime = $this->config->getByKey('sessionExpirationTime');
         $user->setSessionExpiresAt(($this->dateTimeService->now())->modify('+' . $sessionExpirationTime . ' minutes'));
-        $this->userRepository->persist($user);
-    }
-
-    public function renewSessionId(UserInterface $user): void
-    {
-        session_regenerate_id();
-        $user->setSessionId(session_id());
         $this->userRepository->persist($user);
     }
 

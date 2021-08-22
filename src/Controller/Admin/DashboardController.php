@@ -78,8 +78,7 @@ class DashboardController
             throw new NotAuthenticatedException();
         }
 
-        $this->authenticationService->renewSessionId($user);
-        $this->authenticationService->updateSessionExpiration($user);
+        $this->authenticationService->renewSession($user, $request->getSessionId());
 
         return new RedirectResponse(Uri::createFromString('/admin/dashboard'));
     }
@@ -91,7 +90,6 @@ class DashboardController
         $user->setSessionExpiresAt(null);
         $user->setSessionId(null);
         $this->userRepository->persist($user);
-        $this->sessionService->destroy();
 
         return new RedirectResponse(Uri::createFromString('/admin/login'));
     }

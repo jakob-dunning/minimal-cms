@@ -154,7 +154,7 @@ class AuthenticationServiceTest extends TestCase
                        ->method('setSessionExpiresAt')
                        ->with($now->modify("+{$sessionExpirationTime} minutes"));
 
-        $this->authenticationService->updateSessionExpiration($this->userMock);
+        $this->authenticationService->renewSession($this->userMock);
     }
 
     public function testValidateNewPasswordThrowsExceptionOnMissingArrayKey() {
