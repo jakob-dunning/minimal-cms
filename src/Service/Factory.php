@@ -66,7 +66,7 @@ class Factory
     public function createTwig(): Environment
     {
         try {
-            $user = $this->createAuthenticationService()->authenticateUser($this->request);
+            $user = $this->createAuthenticationService()->loginUser($this->request);
         } catch (AuthenticationExceptionInterface $e) {
             $user = null;
         }

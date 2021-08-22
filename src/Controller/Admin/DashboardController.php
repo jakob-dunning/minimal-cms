@@ -60,7 +60,7 @@ class DashboardController
     {
         if ($request->getMethod() === Request::METHOD_GET) {
             try {
-                $this->authenticationService->authenticateUser($request);
+                $this->authenticationService->loginUser($request);
             } catch (AuthenticationExceptionInterface $e) {
                 return new Response($this->twig->render('login.html.twig'));
             }
@@ -85,7 +85,7 @@ class DashboardController
 
     public function logout(Request $request): ResponseInterface
     {
-        $user = $this->authenticationService->authenticateUser($request);
+        $user = $this->authenticationService->loginUser($request);
 
         $user->setSessionExpiresAt(null);
         $user->setSessionId(null);
@@ -96,7 +96,7 @@ class DashboardController
 
     public function dashboard(Request $request): ResponseInterface
     {
-        $this->authenticationService->authenticateUser($request);
+        $this->authenticationService->loginUser($request);
 
         $users = $this->userRepository->findAll();
         $pages = $this->pageRepository->findAll();

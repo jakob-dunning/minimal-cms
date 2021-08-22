@@ -69,7 +69,7 @@ class AuthenticationServiceTest extends TestCase
         $this->expectExceptionMessage(NotAuthenticatedException::MESSAGE);
         $this->expectExceptionCode(Response::STATUS_UNAUTHORIZED);
 
-        $this->authenticationService->authenticateUser($this->requestMock);
+        $this->authenticationService->loginUser($this->requestMock);
     }
 
     public function testAuthenticateUserThrowsExpiredSessionException()
@@ -97,7 +97,7 @@ class AuthenticationServiceTest extends TestCase
         $this->expectExceptionMessage(ExpiredSessionException::MESSAGE);
         $this->expectExceptionCode(Response::STATUS_UNAUTHORIZED);
 
-        $this->authenticationService->authenticateUser($this->requestMock);
+        $this->authenticationService->loginUser($this->requestMock);
     }
 
     public function testAuthenticateUser()
@@ -131,7 +131,7 @@ class AuthenticationServiceTest extends TestCase
                     ->method('getSessionId')
                     ->willReturn($sessionId);
 
-        $user = $this->authenticationService->authenticateUser($requestMock);
+        $user = $this->authenticationService->loginUser($requestMock);
 
         $this->assertSame('Bartleby', $user->getUserName());
     }

@@ -26,7 +26,7 @@ class AuthenticationService
         $this->dateTimeService = $dateTimeService;
     }
 
-    public function authenticateUser(Request $request): UserInterface
+    public function loginUser(Request $request): UserInterface
     {
         try {
             $user = $this->userRepository->findBySessionId($request->getSessionId());

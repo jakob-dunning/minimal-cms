@@ -38,7 +38,7 @@ class PageController
 
     public function list(Request $request): ResponseInterface
     {
-        $this->authenticationService->authenticateUser($request);
+        $this->authenticationService->loginUser($request);
 
         $pages = $this->pageRepository->findAll();
 
@@ -47,7 +47,7 @@ class PageController
 
     public function create(Request $request): ResponseInterface
     {
-        $this->authenticationService->authenticateUser($request);
+        $this->authenticationService->loginUser($request);
 
         if ($request->getMethod() === Request::METHOD_GET) {
             return new Response($this->twig->render('page/single.html.twig', ['title' => 'Add page']));
@@ -70,7 +70,7 @@ class PageController
 
     public function edit(Request $request): ResponseInterface
     {
-        $this->authenticationService->authenticateUser($request);
+        $this->authenticationService->loginUser($request);
 
         $get  = $request->get();
         $page = $this->pageRepository->findById($get['id']);
@@ -95,7 +95,7 @@ class PageController
 
     public function delete(Request $request): ResponseInterface
     {
-        $this->authenticationService->authenticateUser($request);
+        $this->authenticationService->loginUser($request);
 
         $get = $request->get();
         $this->pageRepository->deleteById($get['id']);

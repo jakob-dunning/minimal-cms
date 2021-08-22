@@ -39,7 +39,7 @@ class UserController
 
     public function create(Request $request): ResponseInterface
     {
-        $this->authenticationService->authenticateUser($request);
+        $this->authenticationService->loginUser($request);
 
         if ($request->getMethod() === Request::METHOD_GET) {
             return new Response($this->twig->render('user/single.html.twig', ['title' => 'Add User']));
@@ -72,7 +72,7 @@ class UserController
 
     public function list(Request $request): ResponseInterface
     {
-        $this->authenticationService->authenticateUser($request);
+        $this->authenticationService->loginUser($request);
 
         $users = $this->userRepository->findAll();
 
@@ -83,7 +83,7 @@ class UserController
 
     public function edit(Request $request): ResponseInterface
     {
-        $this->authenticationService->authenticateUser($request);
+        $this->authenticationService->loginUser($request);
 
         $get = $request->get();
         $user = $this->userRepository->findById($get['id']);
@@ -113,7 +113,7 @@ class UserController
 
     public function delete(Request $request): ResponseInterface
     {
-        $this->authenticationService->authenticateUser($request);
+        $this->authenticationService->loginUser($request);
 
         $get = $request->get();
         $this->userRepository->deleteById($get['id']);
