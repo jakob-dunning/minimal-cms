@@ -3,7 +3,7 @@
 use App\Controller\Admin\PageController;
 use App\Entity\Page;
 use App\Repository\PageRepository;
-use App\Service\AuthenticationService;
+use App\Service\PasswordService;
 use App\Service\LoginService;
 use App\Service\Request;
 use App\Service\Response\RedirectResponse;

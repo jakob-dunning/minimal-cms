@@ -8,7 +8,7 @@ use App\Service\Response\RedirectResponse;
 use App\Service\Response\Response;
 use App\Service\Response\ResponseInterface;
 use App\Repository\UserRepository;
-use App\Service\AuthenticationService;
+use App\Service\PasswordService;
 use App\Service\Session;
 use App\ValueObject\FlashMessage;
 use App\ValueObject\Uri;
@@ -20,7 +20,7 @@ class UserController
 
     private Environment $twig;
 
-    private AuthenticationService $authenticationService;
+    private PasswordService $passwordService;
 
     private Session $sessionService;
 
@@ -29,13 +29,13 @@ class UserController
     public function __construct(
         UserRepository $userRepository,
         Environment $twig,
-        AuthenticationService $authenticationService,
+        PasswordService $passwordService,
         Session $sessionService,
         LoginService $loginService
     ) {
         $this->userRepository        = $userRepository;
         $this->twig                  = $twig;
-        $this->authenticationService = $authenticationService;
+        $this->passwordService = $passwordService;
         $this->sessionService        = $sessionService;
         $this->loginService = $loginService;
     }
@@ -51,14 +51,14 @@ class UserController
         $post = $request->post();
 
         try {
-            $this->authenticationService->validateNewPassword($post);
+            $this->passwordService->validateNewPassword($post);
         } catch (\Exception $e) {
             $this->sessionService->addFlash(FlashMessage::createFromParameters($e->getMessage(), FlashMessage::ALERT_LEVEL_ERROR));
 
             return new RedirectResponse(Uri::createFromString('/admin/user/create'));
         }
 
-        $password = $this->authenticationService->hashPassword($post['password']);
+        $password = $this->passwordService->hashPassword($post['password']);
 
         try {
             $this->userRepository->create($post['user'], $password);
@@ -100,14 +100,14 @@ class UserController
         $post = $request->post();
 
         try {
-            $this->authenticationService->validateNewPassword($post);
+            $this->passwordService->validateNewPassword($post);
         } catch (\Exception $e) {
             $this->sessionService->addFlash(FlashMessage::createFromParameters($e->getMessage(), FlashMessage::ALERT_LEVEL_ERROR));
 
             return new RedirectResponse(Uri::createFromString("/admin/user/edit?id={$user->getId()}"));
         }
 
-        $user->setPassword($this->authenticationService->hashPassword($post['password']));
+        $user->setPassword($this->passwordService->hashPassword($post['password']));
         $this->userRepository->persist($user);
         $this->sessionService->addFlash(FlashMessage::createFromParameters('New password saved successfully', FlashMessage::ALERT_LEVEL_SUCCESS));
 

@@ -7,7 +7,7 @@ use App\Exception\NotAuthenticatedException;
 use App\Exception\UserNotFoundException;
 use App\Repository\PageRepository;
 use App\Repository\UserRepository;
-use App\Service\AuthenticationService;
+use App\Service\PasswordService;
 use App\Service\Config;
 use App\Service\LoginService;
 use App\Service\Request;
@@ -36,7 +36,7 @@ class DashboardController
 
     private Environment $twig;
 
-    private AuthenticationService $authenticationService;
+    private PasswordService $passwordService;
 
     private Session $sessionService;
 
@@ -47,7 +47,7 @@ class DashboardController
         PageRepository $pageRepository,
         Config $config,
         Environment $twig,
-        AuthenticationService $authenticationService,
+        PasswordService $passwordService,
         Session $sessionService,
         LoginService $loginService
     ) {
@@ -55,7 +55,7 @@ class DashboardController
         $this->userRepository        = $userRepository;
         $this->pageRepository        = $pageRepository;
         $this->twig                  = $twig;
-        $this->authenticationService = $authenticationService;
+        $this->passwordService = $passwordService;
         $this->sessionService        = $sessionService;
         $this->loginService          = $loginService;
     }
@@ -78,12 +78,12 @@ class DashboardController
             throw new NotAuthenticatedException();
         }
 
-        if ($this->authenticationService->verifyPassword($request->post()['password'], $user->getPassword()) === false) {
+        if ($this->passwordService->verifyPassword($request->post()['password'], $user->getPassword()) === false) {
             throw new NotAuthenticatedException();
         }
 
         $user->setSessionId($request->getSessionId());
-        $this->authenticationService->renewSession($user);
+        $this->loginService->renewSession($user);
         $this->userRepository->persist($user);
 
         return new RedirectResponse(Uri::createFromString('/admin/dashboard'));
