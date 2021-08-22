@@ -16,6 +16,7 @@ use PDO;
 use Twig\Environment;
 use Twig\Extra\String\StringExtension;
 use Twig\Loader\FilesystemLoader;
+use function var_dump;
 
 /**
  * @codeCoverageIgnore
@@ -38,19 +39,21 @@ class Factory
                 $this->createConfig(),
                 $this->createTwig(),
                 $this->createAuthenticationService(),
-                $this->createSessionService()
+                $this->createSessionService(),
+                $this->createLoginService()
             ),
             new UserController(
                 $this->createUserRepository(),
                 $this->createTwig(),
                 $this->createAuthenticationService(),
-                $this->createSessionService()
+                $this->createSessionService(),
+                $this->createLoginService()
             ),
             new PageController(
                 $this->createPageRepository(),
                 $this->createTwig(),
-                $this->createAuthenticationService(),
-                $this->createSessionService()
+                $this->createSessionService(),
+                $this->createLoginService()
             ),
             new PublicController(
                 $this->createPageRepository(),
@@ -66,7 +69,7 @@ class Factory
     public function createTwig(): Environment
     {
         try {
-            $user = $this->createAuthenticationService()->loginUser($this->request);
+            $user = $this->createAuthenticationService()->findAuthenticatedUser($this->request);
         } catch (AuthenticationExceptionInterface $e) {
             $user = null;
         }
@@ -132,5 +135,10 @@ class Factory
     function createSessionService(): Session
     {
         return new Session($_SESSION);
+    }
+
+    private function createLoginService(): LoginService
+    {
+        return new LoginService($this->createAuthenticationService(), $this->createUserRepository());
     }
 }

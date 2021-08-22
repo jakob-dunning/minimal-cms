@@ -4,6 +4,7 @@ use App\Controller\Admin\PageController;
 use App\Entity\Page;
 use App\Repository\PageRepository;
 use App\Service\AuthenticationService;
+use App\Service\LoginService;
 use App\Service\Request;
 use App\Service\Response\RedirectResponse;
 use App\Service\Response\Response;
@@ -25,13 +26,13 @@ class PageControllerTest extends TestCase
 
     private MockObject $twigMock;
 
-    private MockObject $authenticationServiceMock;
-
     private MockObject $sessionServiceMock;
 
     private PageController $pageController;
 
     private MockObject $requestMock;
+
+    private LoginService $loginServiceMock;
 
     public function setUp(): void
     {
@@ -39,22 +40,23 @@ class PageControllerTest extends TestCase
 
         $this->pageRepositoryMock        = $this->createMock(PageRepository::class);
         $this->twigMock                  = $this->createMock(Environment::class);
-        $this->authenticationServiceMock = $this->createMock(AuthenticationService::class);
         $this->sessionServiceMock        = $this->createMock(Session::class);
         $this->requestMock               = $this->createMock(Request::class);
-        $this->pageController            = new PageController(
+        $this->loginServiceMock          = $this->createMock(LoginService::class);
+
+        $this->pageController = new PageController(
             $this->pageRepositoryMock,
             $this->twigMock,
-            $this->authenticationServiceMock,
-            $this->sessionServiceMock
+            $this->sessionServiceMock,
+            $this->loginServiceMock
         );
     }
 
     public function testViewList()
     {
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
-                                        ->with($this->requestMock);
+        $this->loginServiceMock->expects($this->once())
+                               ->method('login')
+                               ->with($this->requestMock);
 
         $this->pageRepositoryMock->expects($this->once())
                                  ->method('findAll')
@@ -68,9 +70,9 @@ class PageControllerTest extends TestCase
 
     public function testViewCreateForm()
     {
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
-                                        ->with($this->requestMock);
+        $this->loginServiceMock->expects($this->once())
+                               ->method('login')
+                               ->with($this->requestMock);
 
         $this->requestMock->expects($this->once())
                           ->method('getMethod')
@@ -93,9 +95,9 @@ class PageControllerTest extends TestCase
                           ->method('post')
                           ->willReturn($post);
 
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
-                                        ->with($this->requestMock);
+        $this->loginServiceMock->expects($this->once())
+                               ->method('login')
+                               ->with($this->requestMock);
 
         $this->pageRepositoryMock->expects($this->once())
                                  ->method('create')
@@ -119,9 +121,9 @@ class PageControllerTest extends TestCase
                           ->method('post')
                           ->willReturn($post);
 
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
-                                        ->with($this->requestMock);
+        $this->loginServiceMock->expects($this->once())
+                               ->method('login')
+                               ->with($this->requestMock);
 
         $this->pageRepositoryMock->expects($this->once())
                                  ->method('create')
@@ -144,9 +146,9 @@ class PageControllerTest extends TestCase
                           ->method('get')
                           ->willReturn($get);
 
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
-                                        ->with($this->requestMock);
+        $this->loginServiceMock->expects($this->once())
+                               ->method('login')
+                               ->with($this->requestMock);
 
         $pageMock = $this->createMock(Page::class);
 
@@ -176,9 +178,9 @@ class PageControllerTest extends TestCase
                           ->method('post')
                           ->willReturn($post);
 
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
-                                        ->with($this->requestMock);
+        $this->loginServiceMock->expects($this->once())
+                               ->method('login')
+                               ->with($this->requestMock);
 
         $pageMock = $this->createMock(Page::class);
         $pageMock->expects($this->once())
@@ -212,9 +214,9 @@ class PageControllerTest extends TestCase
     {
         $get = ['id' => 7];
 
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
-                                        ->with($this->requestMock);
+        $this->loginServiceMock->expects($this->once())
+                               ->method('login')
+                               ->with($this->requestMock);
 
         $this->requestMock->expects($this->once())
                           ->method('get')

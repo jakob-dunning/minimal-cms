@@ -26,7 +26,7 @@ class AuthenticationService
         $this->dateTimeService = $dateTimeService;
     }
 
-    public function loginUser(Request $request): UserInterface
+    public function findAuthenticatedUser(Request $request): UserInterface
     {
         try {
             $user = $this->userRepository->findBySessionId($request->getSessionId());
@@ -38,19 +38,13 @@ class AuthenticationService
             throw new ExpiredSessionException();
         }
 
-        $this->renewSession($user, $request->getSessionId());
-
         return $user;
     }
 
-    public function renewSession(UserInterface $user, string $sessionId): void
+    public function renewSession(UserInterface $user): void
     {
-        if ($user->getSessionId() === null) {
-            $user->setSessionId($sessionId);
-        }
         $sessionExpirationTime = $this->config->getByKey('sessionExpirationTime');
         $user->setSessionExpiresAt(($this->dateTimeService->now())->modify('+' . $sessionExpirationTime . ' minutes'));
-        $this->userRepository->persist($user);
     }
 
     /**

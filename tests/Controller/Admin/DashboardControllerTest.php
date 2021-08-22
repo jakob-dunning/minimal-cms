@@ -8,6 +8,7 @@ use App\Repository\PageRepository;
 use App\Repository\UserRepository;
 use App\Service\AuthenticationService;
 use App\Service\Config;
+use App\Service\LoginService;
 use App\Service\Request;
 use App\Service\Response\RedirectResponse;
 use App\Service\Response\Response;
@@ -28,6 +29,7 @@ use Twig\Environment;
  * @uses   \App\Service\Session
  * @uses   \App\ValueObject\Uri
  * @uses   \App\Exception\AuthenticationExceptionInterface
+ * @uses   \App\Service\LoginService
  */
 class DashboardControllerTest extends TestCase
 {
@@ -45,6 +47,8 @@ class DashboardControllerTest extends TestCase
 
     private MockObject          $sessionServiceMock;
 
+    private MockObject          $loginServiceMock;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -55,6 +59,7 @@ class DashboardControllerTest extends TestCase
         $this->twigMock                  = $this->createMock(Environment::class);
         $this->authenticationServiceMock = $this->createMock(AuthenticationService::class);
         $this->sessionServiceMock        = $this->createMock(Session::class);
+        $this->loginServiceMock          = $this->createMock(LoginService::class);
 
         $this->dashboardController = new DashboardController(
             $this->userRepositoryMock,
@@ -62,7 +67,8 @@ class DashboardControllerTest extends TestCase
             $this->configMock,
             $this->twigMock,
             $this->authenticationServiceMock,
-            $this->sessionServiceMock
+            $this->sessionServiceMock,
+            $this->loginServiceMock
         );
     }
 
@@ -73,10 +79,10 @@ class DashboardControllerTest extends TestCase
                     ->method('getMethod')
                     ->willReturn(Request::METHOD_GET);
 
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
-                                        ->with($requestMock)
-                                        ->willThrowException(new NotAuthenticatedException());
+        $this->loginServiceMock->expects($this->once())
+                    ->method('login')
+                    ->with($requestMock)
+                    ->willThrowException(new NotAuthenticatedException());
 
         $response = $this->dashboardController->login($requestMock);
 
@@ -91,8 +97,8 @@ class DashboardControllerTest extends TestCase
                     ->method('getMethod')
                     ->willReturn(Request::METHOD_GET);
 
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
+        $this->loginServiceMock->expects($this->once())
+                                        ->method('login')
                                         ->with($requestMock);
 
         $response = $this->dashboardController->login($requestMock);
@@ -208,8 +214,8 @@ class DashboardControllerTest extends TestCase
                  ->with(null)
                  ->willReturn($userMock);
 
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
+        $this->loginServiceMock->expects($this->once())
+                                        ->method('login')
                                         ->with($requestMock)
                                         ->willReturn($userMock);
 
@@ -227,8 +233,8 @@ class DashboardControllerTest extends TestCase
     {
         $requestMock = $this->createMock(Request::class);
 
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
+        $this->loginServiceMock->expects($this->once())
+                                        ->method('login')
                                         ->with($requestMock);
 
         $this->userRepositoryMock->expects($this->once())

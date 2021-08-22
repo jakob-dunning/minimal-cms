@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Service\LoginService;
 use App\Service\Request;
 use App\Service\Response\RedirectResponse;
 use App\Service\Response\Response;
@@ -12,8 +13,6 @@ use App\Service\Session;
 use App\ValueObject\FlashMessage;
 use App\ValueObject\Uri;
 use Twig\Environment;
-use function key_exists;
-use function var_dump;
 
 class UserController
 {
@@ -25,21 +24,25 @@ class UserController
 
     private Session $sessionService;
 
+    private LoginService $loginService;
+
     public function __construct(
         UserRepository $userRepository,
         Environment $twig,
         AuthenticationService $authenticationService,
-        Session $sessionService
+        Session $sessionService,
+        LoginService $loginService
     ) {
         $this->userRepository        = $userRepository;
         $this->twig                  = $twig;
         $this->authenticationService = $authenticationService;
         $this->sessionService        = $sessionService;
+        $this->loginService = $loginService;
     }
 
     public function create(Request $request): ResponseInterface
     {
-        $this->authenticationService->loginUser($request);
+        $this->loginService->login($request);
 
         if ($request->getMethod() === Request::METHOD_GET) {
             return new Response($this->twig->render('user/single.html.twig', ['title' => 'Add User']));
@@ -72,7 +75,7 @@ class UserController
 
     public function list(Request $request): ResponseInterface
     {
-        $this->authenticationService->loginUser($request);
+        $this->loginService->login($request);
 
         $users = $this->userRepository->findAll();
 
@@ -83,7 +86,7 @@ class UserController
 
     public function edit(Request $request): ResponseInterface
     {
-        $this->authenticationService->loginUser($request);
+        $this->loginService->login($request);
 
         $get = $request->get();
         $user = $this->userRepository->findById($get['id']);
@@ -113,7 +116,7 @@ class UserController
 
     public function delete(Request $request): ResponseInterface
     {
-        $this->authenticationService->loginUser($request);
+        $this->loginService->login($request);
 
         $get = $request->get();
         $this->userRepository->deleteById($get['id']);

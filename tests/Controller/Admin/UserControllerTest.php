@@ -4,6 +4,7 @@ use App\Controller\Admin\UserController;
 use App\Entity\User\User;
 use App\Repository\UserRepository;
 use App\Service\AuthenticationService;
+use App\Service\LoginService;
 use App\Service\Request;
 use App\Service\Response\RedirectResponse;
 use App\Service\Response\Response;
@@ -33,6 +34,8 @@ class UserControllerTest extends TestCase
 
     private MockObject $requestMock;
 
+    private MockObject $loginServiceMock;
+
     public function setUp(): void
     {
         $this->userRepositoryMock        = $this->createMock(UserRepository::class);
@@ -40,20 +43,22 @@ class UserControllerTest extends TestCase
         $this->authenticationServiceMock = $this->createMock(AuthenticationService::class);
         $this->sessionServiceMock        = $this->createMock(Session::class);
         $this->requestMock               = $this->createMock(Request::class);
+        $this->loginServiceMock          = $this->createMock(LoginService::class);
 
         $this->userController = new UserController(
             $this->userRepositoryMock,
             $this->twigMock,
             $this->authenticationServiceMock,
-            $this->sessionServiceMock
+            $this->sessionServiceMock,
+            $this->loginServiceMock
         );
     }
 
     public function testViewCreateForm()
     {
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
-                                        ->with($this->requestMock);
+        $this->loginServiceMock->expects($this->once())
+                               ->method('login')
+                               ->with($this->requestMock);
 
         $this->requestMock->expects($this->once())
                           ->method('getMethod')
@@ -68,9 +73,9 @@ class UserControllerTest extends TestCase
     public function testCreateFormRedirectsOnInvalidPassword()
     {
         $post = [];
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
-                                        ->with($this->requestMock);
+        $this->loginServiceMock->expects($this->once())
+                               ->method('login')
+                               ->with($this->requestMock);
         $this->authenticationServiceMock->expects($this->once())
                                         ->method('validateNewPassword')
                                         ->with($post)
@@ -94,9 +99,9 @@ class UserControllerTest extends TestCase
         $post           = ['user' => 'heini', 'password' => 'abc', 'repeat-password' => 'abc'];
         $hashedPassword = '$2y$10$A6GORwPx2KW3zmLe1EyfOuDrvOzF.bF3NtNdvSf7QM6diD3pbQcqu';
 
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
-                                        ->with($this->requestMock);
+        $this->loginServiceMock->expects($this->once())
+                               ->method('login')
+                               ->with($this->requestMock);
         $this->authenticationServiceMock->expects($this->once())
                                         ->method('validateNewPassword')
                                         ->with($post);
@@ -128,9 +133,9 @@ class UserControllerTest extends TestCase
         $post           = ['user' => 'heini', 'password' => 'abc', 'repeat-password' => 'abc'];
         $hashedPassword = '$2y$10$A6GORwPx2KW3zmLe1EyfOuDrvOzF.bF3NtNdvSf7QM6diD3pbQcqu';
 
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
-                                        ->with($this->requestMock);
+        $this->loginServiceMock->expects($this->once())
+                               ->method('login')
+                               ->with($this->requestMock);
         $this->authenticationServiceMock->expects($this->once())
                                         ->method('validateNewPassword')
                                         ->with($post);
@@ -161,9 +166,9 @@ class UserControllerTest extends TestCase
         $this->userRepositoryMock->expects($this->once())
                                  ->method('findAll');
 
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
-                                        ->with($this->requestMock);
+        $this->loginServiceMock->expects($this->once())
+                               ->method('login')
+                               ->with($this->requestMock);
 
         $response = $this->userController->list($this->requestMock);
 
@@ -189,9 +194,9 @@ class UserControllerTest extends TestCase
                                  ->with($userId)
                                  ->willReturn($userMock);
 
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
-                                        ->with($this->requestMock);
+        $this->loginServiceMock->expects($this->once())
+                               ->method('login')
+                               ->with($this->requestMock);
 
         $response = $this->userController->edit($this->requestMock);
 
@@ -224,9 +229,9 @@ class UserControllerTest extends TestCase
                                  ->with($userId)
                                  ->willReturn($userMock);
 
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
-                                        ->with($this->requestMock);
+        $this->loginServiceMock->expects($this->once())
+                               ->method('login')
+                               ->with($this->requestMock);
         $this->authenticationServiceMock->expects($this->once())
                                         ->method('validateNewPassword')
                                         ->with($post)
@@ -267,9 +272,9 @@ class UserControllerTest extends TestCase
                                  ->method('persist')
                                  ->with($userMock);
 
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
-                                        ->with($this->requestMock);
+        $this->loginServiceMock->expects($this->once())
+                               ->method('login')
+                               ->with($this->requestMock);
         $this->authenticationServiceMock->expects($this->once())
                                         ->method('validateNewPassword')
                                         ->with($post);
@@ -289,9 +294,9 @@ class UserControllerTest extends TestCase
         $userId = 9;
         $get    = ['id' => $userId];
 
-        $this->authenticationServiceMock->expects($this->once())
-                                        ->method('loginUser')
-                                        ->with($this->requestMock);
+        $this->loginServiceMock->expects($this->once())
+                               ->method('login')
+                               ->with($this->requestMock);
 
         $this->requestMock->expects($this->once())
                           ->method('get')

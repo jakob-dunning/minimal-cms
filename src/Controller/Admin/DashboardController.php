@@ -9,6 +9,7 @@ use App\Repository\PageRepository;
 use App\Repository\UserRepository;
 use App\Service\AuthenticationService;
 use App\Service\Config;
+use App\Service\LoginService;
 use App\Service\Request;
 use App\Service\Response\RedirectResponse;
 use App\Service\Response\Response;
@@ -16,7 +17,6 @@ use App\Service\Response\ResponseInterface;
 use App\Service\Session;
 use App\ValueObject\Uri;
 use Twig\Environment;
-use function var_dump;
 
 class DashboardController
 {
@@ -40,13 +40,16 @@ class DashboardController
 
     private Session $sessionService;
 
+    private LoginService $loginService;
+
     public function __construct(
         UserRepository $userRepository,
         PageRepository $pageRepository,
         Config $config,
         Environment $twig,
         AuthenticationService $authenticationService,
-        Session $sessionService
+        Session $sessionService,
+        LoginService $loginService
     ) {
         $this->config                = $config;
         $this->userRepository        = $userRepository;
@@ -54,13 +57,14 @@ class DashboardController
         $this->twig                  = $twig;
         $this->authenticationService = $authenticationService;
         $this->sessionService        = $sessionService;
+        $this->loginService          = $loginService;
     }
 
     public function login(Request $request): ResponseInterface
     {
         if ($request->getMethod() === Request::METHOD_GET) {
             try {
-                $this->authenticationService->loginUser($request);
+                $this->loginService->login($request);
             } catch (AuthenticationExceptionInterface $e) {
                 return new Response($this->twig->render('login.html.twig'));
             }
@@ -78,14 +82,16 @@ class DashboardController
             throw new NotAuthenticatedException();
         }
 
-        $this->authenticationService->renewSession($user, $request->getSessionId());
+        $user->setSessionId($request->getSessionId());
+        $this->authenticationService->renewSession($user);
+        $this->userRepository->persist($user);
 
         return new RedirectResponse(Uri::createFromString('/admin/dashboard'));
     }
 
     public function logout(Request $request): ResponseInterface
     {
-        $user = $this->authenticationService->loginUser($request);
+        $user = $this->loginService->login($request);
 
         $user->setSessionExpiresAt(null);
         $user->setSessionId(null);
@@ -96,7 +102,7 @@ class DashboardController
 
     public function dashboard(Request $request): ResponseInterface
     {
-        $this->authenticationService->loginUser($request);
+        $this->loginService->login($request);
 
         $users = $this->userRepository->findAll();
         $pages = $this->pageRepository->findAll();

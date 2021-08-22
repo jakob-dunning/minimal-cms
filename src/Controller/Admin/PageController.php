@@ -3,8 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Repository\PageRepository;
-use App\Repository\UserRepository;
-use App\Service\AuthenticationService;
+use App\Service\LoginService;
 use App\Service\Request;
 use App\Service\Response\RedirectResponse;
 use App\Service\Response\Response;
@@ -20,25 +19,25 @@ class PageController
 
     private Environment $twig;
 
-    private AuthenticationService $authenticationService;
-
     private Session $sessionService;
+
+    private LoginService $loginService;
 
     public function __construct(
         PageRepository $pageRepository,
         Environment $twig,
-        AuthenticationService $authenticationService,
-        Session $sessionService
+        Session $sessionService,
+        LoginService $loginService
     ) {
-        $this->pageRepository        = $pageRepository;
-        $this->twig                  = $twig;
-        $this->authenticationService = $authenticationService;
-        $this->sessionService        = $sessionService;
+        $this->pageRepository = $pageRepository;
+        $this->twig           = $twig;
+        $this->sessionService = $sessionService;
+        $this->loginService   = $loginService;
     }
 
     public function list(Request $request): ResponseInterface
     {
-        $this->authenticationService->loginUser($request);
+        $this->loginService->login($request);
 
         $pages = $this->pageRepository->findAll();
 
@@ -47,7 +46,7 @@ class PageController
 
     public function create(Request $request): ResponseInterface
     {
-        $this->authenticationService->loginUser($request);
+        $this->loginService->login($request);
 
         if ($request->getMethod() === Request::METHOD_GET) {
             return new Response($this->twig->render('page/single.html.twig', ['title' => 'Add page']));
@@ -70,7 +69,7 @@ class PageController
 
     public function edit(Request $request): ResponseInterface
     {
-        $this->authenticationService->loginUser($request);
+        $this->loginService->login($request);
 
         $get  = $request->get();
         $page = $this->pageRepository->findById($get['id']);
@@ -95,7 +94,7 @@ class PageController
 
     public function delete(Request $request): ResponseInterface
     {
-        $this->authenticationService->loginUser($request);
+        $this->loginService->login($request);
 
         $get = $request->get();
         $this->pageRepository->deleteById($get['id']);

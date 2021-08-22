@@ -76,14 +76,14 @@ class Router
 
             return new RedirectResponse(Uri::createFromString('/admin/login'));
         } catch (\Throwable $t) {
-            if ($this->config->getByKey('environment') === 'DEV') {
-                return new Response($this->environment->render(
-                    'debug.html.twig',
-                    ['message' => $t->getMessage(), 'trace' => $t->getTraceAsString()],
-                ), $t->getCode());
+            if ($this->config->getByKey('environment') !== 'DEV') {
+                return new RedirectResponse(Uri::createFromString('/error'), $t->getCode());
             }
 
-            return new RedirectResponse(Uri::createFromString('/error'), $t->getCode());
+            return new Response($this->environment->render(
+                'debug.html.twig',
+                ['message' => $t->getMessage(), 'trace' => $t->getTraceAsString()],
+            ), $t->getCode());
         }
     }
 }

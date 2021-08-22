@@ -52,7 +52,7 @@ class AuthenticationServiceTest extends TestCase
         $this->authenticationService = new AuthenticationService($this->configMock, $this->userRepositoryMock, $this->dateTimeServiceMock);
     }
 
-    public function testLoginUserThrowsNotAuthenticatedException()
+    public function testFindAutenticatedUserThrowsNotAuthenticatedException()
     {
         $sessionId = 'hjsdfkglsdgflisdhfui34563456';
 
@@ -69,10 +69,10 @@ class AuthenticationServiceTest extends TestCase
         $this->expectExceptionMessage(NotAuthenticatedException::MESSAGE);
         $this->expectExceptionCode(Response::STATUS_UNAUTHORIZED);
 
-        $this->authenticationService->loginUser($this->requestMock);
+        $this->authenticationService->findAuthenticatedUser($this->requestMock);
     }
 
-    public function testLoginUserThrowsExpiredSessionException()
+    public function testFindAutenticatedUserThrowsExpiredSessionException()
     {
         $sessionId = 'hjsdfkglsdgflisdhfui34563456';
 
@@ -97,18 +97,13 @@ class AuthenticationServiceTest extends TestCase
         $this->expectExceptionMessage(ExpiredSessionException::MESSAGE);
         $this->expectExceptionCode(Response::STATUS_UNAUTHORIZED);
 
-        $this->authenticationService->loginUser($this->requestMock);
+        $this->authenticationService->findAuthenticatedUser($this->requestMock);
     }
 
-    public function testLoginUser()
+    public function testFindAutenticatedUser()
     {
         $sessionId = 'hjsdfkglsdgflissaddhfui34563456';
         $username  = 'Bartleby';
-
-        $this->configMock->expects($this->once())
-                         ->method('getByKey')
-                         ->with('sessionExpirationTime')
-                         ->willReturn(55);
 
         $this->userMock->expects($this->once())
                        ->method('getSessionExpiresAt')
@@ -122,16 +117,16 @@ class AuthenticationServiceTest extends TestCase
                                  ->with($sessionId)
                                  ->willReturn($this->userMock);
 
-        $this->dateTimeServiceMock->expects($this->exactly(2))
+        $this->dateTimeServiceMock->expects($this->once())
                                   ->method('now')
                                   ->willReturn(new \DateTime());
 
         $requestMock = $this->createMock(Request::class);
-        $requestMock->expects($this->exactly(2))
+        $requestMock->expects($this->once())
                     ->method('getSessionId')
                     ->willReturn($sessionId);
 
-        $user = $this->authenticationService->loginUser($requestMock);
+        $user = $this->authenticationService->findAuthenticatedUser($requestMock);
 
         $this->assertSame('Bartleby', $user->getUserName());
     }
@@ -139,7 +134,6 @@ class AuthenticationServiceTest extends TestCase
     public function testRenewSession()
     {
         $sessionExpirationTime = 45;
-        $sessionId             = 'asdasdasdadasd';
         $now                   = new \DateTime();
 
         $this->dateTimeServiceMock->expects($this->once())
@@ -154,15 +148,8 @@ class AuthenticationServiceTest extends TestCase
         $this->userMock->expects($this->once())
                        ->method('setSessionExpiresAt')
                        ->with($now->modify("+{$sessionExpirationTime} minutes"));
-        $this->userMock->expects($this->once())
-                       ->method('setSessionId')
-                       ->with($sessionId);
 
-        $this->userRepositoryMock->expects($this->once())
-                                 ->method('persist')
-                                 ->with($this->userMock);
-
-        $this->authenticationService->renewSession($this->userMock, $sessionId);
+        $this->authenticationService->renewSession($this->userMock);
     }
 
     public function testValidateNewPasswordThrowsExceptionOnMissingArrayKey()
