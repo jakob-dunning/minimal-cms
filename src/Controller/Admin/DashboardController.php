@@ -78,7 +78,7 @@ class DashboardController
             throw new NotAuthenticatedException();
         }
 
-        if ($this->passwordService->verifyPassword($request->post()['password'], $user->getPassword()) === false) {
+        if ($this->passwordService->verifyPassword($request->post()['password'] ?? '', $user->getPassword()) === false) {
             throw new NotAuthenticatedException();
         }
 
